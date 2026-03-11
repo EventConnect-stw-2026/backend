@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const eventRoutes = require("./routes/event.routes");
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
+const zaragozaRoutes = require("./routes/zaragoza.routes");
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(helmet());
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use("/api/zaragoza", zaragozaRoutes);
 
 app.get("/", (req, res) => {
   res.json({
