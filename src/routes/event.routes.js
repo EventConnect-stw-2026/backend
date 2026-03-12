@@ -14,7 +14,7 @@ const {
   createEventValidator,
   updateEventValidator,
   eventIdValidator
-} = require("../validators/event.validator");
+} = require("../validators/event.validators");
 
 router.get("/", getAllEvents);
 
