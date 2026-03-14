@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { register, login } = require("../controllers/auth.controller");
+const { register, login, loginWithGoogle} = require("../controllers/auth.controller");
 
 const validateRequest = require("../middlewares/validateRequest");
 
@@ -23,5 +23,7 @@ router.post(
   validateRequest,
   login
 );
+
+router.post("/google", loginWithGoogle);
 
 module.exports = router;
