@@ -13,7 +13,10 @@ const zaragozaRoutes = require("./routes/zaragoza.routes");
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:4200', // Cambia si tu frontend está en otro puerto/origen
+  credentials: true
+}));
 app.use(morgan("dev"));
 app.use(express.json());
 
