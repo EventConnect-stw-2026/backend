@@ -1,3 +1,88 @@
+// Endpoint para actualizar perfil del usuario autenticado
+async function updateProfile(req, res) {
+  try {
+    const userId = req.user?.sub;
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
+    const {
+      name,
+      username,
+      avatarUrl,
+      bio,
+      location,
+      interests,
+      passwordChange
+    } = req.body;
+
+    const updateFields = {
+      name,
+      username,
+      avatarUrl,
+      bio,
+      location,
+      interests
+    };
+
+    // Actualizar contraseña si se solicita
+    if (passwordChange && passwordChange.currentPassword && passwordChange.newPassword) {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+      const isValidPassword = await bcrypt.compare(passwordChange.currentPassword, user.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+      }
+      updateFields.passwordHash = await bcrypt.hash(passwordChange.newPassword, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    return res.status(200).json({
+      message: 'Perfil actualizado correctamente',
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        avatarUrl: updatedUser.avatarUrl,
+        bio: updatedUser.bio,
+        location: updatedUser.location,
+        interests: updatedUser.interests || []
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al actualizar perfil' });
+  }
+}
+// Endpoint para obtener perfil del usuario autenticado
+async function getProfile(req, res) {
+  try {
+    const userId = req.user?.sub;
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    return res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      location: user.location,
+      interests: user.interests || []
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al obtener perfil' });
+  }
+}
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
@@ -5,7 +90,7 @@ const User = require('../models/User');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-function generateToken(user) {
+function generateToken(user, expiresIn = '15m') {
   return jwt.sign(
     {
       sub: user._id,
@@ -13,6 +98,18 @@ function generateToken(user) {
       role: user.role
     },
     process.env.JWT_SECRET,
+    { expiresIn }
+  );
+}
+
+function generateRefreshToken(user) {
+  return jwt.sign(
+    {
+      sub: user._id,
+      email: user.email,
+      role: user.role
+    },
+    process.env.JWT_REFRESH_SECRET,
     { expiresIn: '7d' }
   );
 }
@@ -39,11 +136,24 @@ async function register(req, res, next) {
       isBlocked: false
     });
 
-    const token = generateToken(user);
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000 // 15 min
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+    });
 
     return res.status(201).json({
       message: 'Usuario registrado correctamente',
-      token,
       user: {
         _id: user._id,
         name: user.name,
@@ -90,11 +200,24 @@ async function login(req, res, next) {
       });
     }
 
-    const token = generateToken(user);
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000 // 15 min
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+    });
 
     return res.status(200).json({
       message: 'Login correcto',
-      token,
       user: {
         _id: user._id,
         name: user.name,
@@ -163,11 +286,24 @@ async function loginWithGoogle(req, res, next) {
       return res.status(403).json({ message: 'Usuario bloqueado' });
     }
 
-    const jwtToken = generateToken(user);
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000 // 15 min
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+    });
 
     return res.status(200).json({
       message: 'Autenticación exitosa',
-      token: jwtToken,
       user: {
         _id: user._id,
         name: user.name,
@@ -188,8 +324,57 @@ async function loginWithGoogle(req, res, next) {
   }
 }
 
+// Endpoint para renovar access token
+async function refreshToken(req, res) {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'Refresh token no proporcionado' });
+    }
+    let payload;
+    try {
+      payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    } catch (err) {
+      return res.status(401).json({ message: 'Refresh token inválido o expirado' });
+    }
+    const user = await User.findById(payload.sub);
+    if (!user) {
+      return res.status(401).json({ message: 'Usuario no encontrado' });
+    }
+    const accessToken = generateToken(user);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000
+    });
+    return res.status(200).json({ message: 'Access token renovado' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al renovar token' });
+  }
+}
+
+// Endpoint para logout
+async function logout(req, res) {
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  });
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  });
+  return res.status(200).json({ message: 'Logout exitoso' });
+}
+
 module.exports = {
   register,
   login,
-  loginWithGoogle
+  loginWithGoogle,
+  refreshToken,
+  logout,
+  getProfile,
+  updateProfile
 };
