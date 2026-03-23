@@ -5,6 +5,7 @@ const morgan = require("morgan");
 
 const eventRoutes = require("./routes/event.routes");
 const authRoutes = require('./routes/auth.routes');
+const friendsRoutes = require('./routes/friends.routes');
 
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 app.use("/api/events", eventRoutes);
 app.use("/api/zaragoza", zaragozaRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/friends", friendsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

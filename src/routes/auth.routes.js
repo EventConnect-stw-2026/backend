@@ -12,8 +12,10 @@ const {
   requestPasswordReset,
   resetPassword
 } = require("../controllers/auth.controller");
+
 const cookieParser = require('cookie-parser');
 const requireAuth = require('../middlewares/auth.middleware');
+
 router.use(cookieParser());
 router.get("/profile", requireAuth, getProfile);
 router.put("/profile", requireAuth, updateProfile);
