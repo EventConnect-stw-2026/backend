@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const eventRoutes = require("./routes/event.routes");
 const authRoutes = require('./routes/auth.routes');
 const friendsRoutes = require('./routes/friends.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
@@ -31,6 +32,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/zaragoza", zaragozaRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendsRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

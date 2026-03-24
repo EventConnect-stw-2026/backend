@@ -12,7 +12,8 @@ const {
   removeFriend,
   getSuggestedFriends,
   getSearchableUsers,
-  getUsersBySearch
+  getUsersBySearch,
+  getSentRequests
 } = require('../controllers/friends.controller');
 
 router.use(cookieParser());
@@ -28,5 +29,6 @@ router.get('/suggested', getSuggestedFriends);
 router.post('/remove', removeFriend);
 router.get('/searchable', getSearchableUsers);
 router.get('/search', getUsersBySearch);
+router.get('/sent', getSentRequests);
 
 module.exports = router;
