@@ -77,6 +77,8 @@ async function getProfile(req, res) {
       name: user.name,
       email: user.email,
       username: user.username,
+      role: user.role,
+      isBlocked: user.isBlocked,
       avatarUrl: user.avatarUrl,
       bio: user.bio,
       location: user.location,
