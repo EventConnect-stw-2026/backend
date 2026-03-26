@@ -63,7 +63,30 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
       default: null
-    }
+    },
+    // Eventos a los que el usuario ha confirmado asistencia
+    attendedEvents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event' // Debe coincidir exactamente con el nombre de tu modelo de Eventos
+      }
+    ],
+    
+    // Eventos guardados en "Favoritos" para ir más tarde
+    savedEvents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event'
+      }
+    ],
+
+    // Lista de amigos (relación de Usuario a Usuario)
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ]
   },
   {
     timestamps: true,

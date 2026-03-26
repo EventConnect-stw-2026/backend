@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const User = require("../models/User");
 
 const getAllEvents = async (req, res, next) => {
   try {
@@ -7,13 +8,28 @@ const getAllEvents = async (req, res, next) => {
       limit = 10,
       category,
       status = "active",
-      search
+      search,
+      dateFrom, 
+      dateTo    
     } = req.query;
 
     const filter = {};
     if (status) filter.status = status;
     if (category) filter.category = category;
     if (search) filter.$text = { $search: search };
+    if (dateFrom || dateTo) {
+      filter.startDate = {};
+      
+      if (dateFrom) {
+        filter.startDate.$gte = new Date(dateFrom); 
+      }
+      
+      if (dateTo) {
+        const endDate = new Date(dateTo);
+        endDate.setUTCHours(23, 59, 59, 999);
+        filter.startDate.$lte = endDate;
+      }
+    }
 
     const skip = (page - 1) * limit;
 
@@ -21,7 +37,6 @@ const getAllEvents = async (req, res, next) => {
       Event.find(filter).sort({ startDate: 1 }).skip(skip).limit(Number(limit)),
       Event.countDocuments(filter)
     ]);
-
     res.status(200).json({
       success: true,
       count: events.length,
@@ -122,10 +137,34 @@ const deleteEvent = async (req, res, next) => {
   }
 };
 
+const toggleAttendance = async (req, res, next) => {
+  try {
+    console.log("ESTO VA DENTRO DEL TOKEN:", req.user);
+    const eventId = req.params.id;
+    const userId = req.user.sub; 
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
+    const isAttending = user.attendedEvents.includes(eventId);
+
+    if (isAttending) {
+      await User.findByIdAndUpdate(userId, { $pull: { attendedEvents: eventId } });
+      res.status(200).json({ success: true, message: "Te has desapuntado del evento", isAttending: false });
+    } else {
+      await User.findByIdAndUpdate(userId, { $addToSet: { attendedEvents: eventId } });
+      res.status(200).json({ success: true, message: "¡Apuntado al evento!", isAttending: true });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   getAllEvents,
   getEventById,
   createEvent,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  toggleAttendance
 };

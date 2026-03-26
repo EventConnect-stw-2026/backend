@@ -6,10 +6,12 @@ const {
   getEventById,
   createEvent,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  toggleAttendance
 } = require("../controllers/event.controller");
 
 const validateRequest = require("../middlewares/validateRequest");
+const requireAuth = require("../middlewares/auth.middleware");
 const {
   createEventValidator,
   updateEventValidator,
@@ -143,6 +145,8 @@ router.put("/:id", updateEventValidator, validateRequest, updateEvent);
  *         description: Evento no encontrado
  */
 router.delete("/:id", eventIdValidator, validateRequest, deleteEvent);
+
+router.post("/:id/attend", requireAuth, toggleAttendance);
 
 /**
  * @swagger
