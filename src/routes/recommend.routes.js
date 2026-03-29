@@ -5,6 +5,16 @@ const Event = require("../models/Event");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Mapa de categoría IA → categorías reales en la BD
+const categoryMap = {
+  deporte: ["Deporte"],
+  musica: ["Música", "Música y Danza"],
+  cultura: ["Teatro y Artes Escénicas", "Artes plásticas", "Cine", "Conferencias y Congresos", "Imagen y sonido", "Turismo"],
+  gastronomia: ["Gastronomía"],
+  social: ["Desarrollo personal", "Cursos y Talleres", "Formación", "Ocio y Juegos", "Idiomas"],
+  naturaleza: ["Aire Libre y Excursiones", "Medio Ambiente y Naturaleza"],
+};
+
 router.post("/", async (req, res) => {
   try {
     const { companion, vibe } = req.body;
@@ -15,7 +25,6 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Faltan parámetros" });
     }
 
-    // 🔹 Traducción para IA (tu lógica original)
     const companionText = {
       solo: "solo",
       pareja: "en pareja",
@@ -32,7 +41,6 @@ router.post("/", async (req, res) => {
       cultural: "algo cultural, artístico o con historia",
     }[vibe] ?? vibe;
 
-    // 🔹 PROMPT (IA SOLO CLASIFICA)
     const prompt = `
 Eres SpAlk, un asistente experto en recomendar planes en Zaragoza.
 
@@ -51,6 +59,7 @@ Tu tarea:
 - cultura
 - gastronomia
 - social
+- naturaleza
 
 Reglas:
 - Responde SOLO con una palabra
@@ -60,16 +69,15 @@ Reglas:
 `;
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
     const result = await model.generateContent(prompt);
+    const aiCategory = result.response.text().trim().toLowerCase().replace(/[^a-záéíóúñ]/gi, '');
 
-    const category = result.response.text().trim().toLowerCase();
+    console.log("IA CATEGORY:", aiCategory);
 
-    console.log("IA CATEGORY:", category);
+    const dbCategories = categoryMap[aiCategory] || ["Deporte"];
 
-    // 🔹 QUERY REAL EN MONGO
     const events = await Event.find({
-      category: { $regex: category, $options: "i" },
+      category: { $in: dbCategories },
       status: "active"
     })
       .sort({ startDate: 1 })
@@ -77,7 +85,7 @@ Reglas:
 
     console.log("EVENTS FOUND:", events.length);
 
-    res.json({ events });
+    res.json({ events, category: aiCategory });
 
   } catch (error) {
     console.error("❌ ERROR EN /api/recommend:", error);

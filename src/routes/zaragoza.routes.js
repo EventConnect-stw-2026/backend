@@ -11,111 +11,105 @@ const controller = require("../controllers/zaragoza.controller");
 
 /**
  * @swagger
- * /api/zaragoza/events:
+ * /api/zaragoza:
  *   get:
- *     summary: Listar eventos de Zaragoza
- *     tags: [Zaragoza]
- *     responses:
- *       200:
- *         description: Lista de eventos externos
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Event'
- */
-router.get("/events", controller.getEvents);
-
-/**
- * @swagger
- * /api/zaragoza/events/today:
- *   get:
- *     summary: Listar eventos de Zaragoza para hoy
- *     tags: [Zaragoza]
- *     responses:
- *       200:
- *         description: Lista de eventos de hoy
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Event'
- */
-router.get("/events/today", controller.getToday);
-
-/**
- * @swagger
- * /api/zaragoza/events/search:
- *   get:
- *     summary: Buscar eventos de Zaragoza
+ *     summary: Obtener eventos de Zaragoza
  *     tags: [Zaragoza]
  *     parameters:
  *       - in: query
- *         name: q
+ *         name: start
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Índice de inicio para paginación
+ *       - in: query
+ *         name: rows
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Número de resultados a devolver
+ *       - in: query
+ *         name: today
+ *         schema:
+ *           type: boolean
+ *         description: Si es true, devuelve solo los eventos de hoy
+ *       - in: query
+ *         name: search
  *         schema:
  *           type: string
- *         description: Texto de búsqueda
- *     responses:
- *       200:
- *         description: Resultados de búsqueda
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Event'
- */
-router.get("/events/search", controller.search);
-
-/**
- * @swagger
- * /api/zaragoza/events/{id}:
- *   get:
- *     summary: Obtener evento de Zaragoza por ID
- *     tags: [Zaragoza]
- *     parameters:
- *       - in: path
+ *         description: Texto para buscar eventos
+ *       - in: query
  *         name: id
  *         schema:
  *           type: string
- *         required: true
- *         description: ID del evento externo
+ *         description: ID del evento concreto a obtener
  *     responses:
  *       200:
- *         description: Evento encontrado
+ *         description: Eventos obtenidos correctamente
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Event'
- *       404:
- *         description: Evento no encontrado
+ *               type: object
+ *             examples:
+ *               lista:
+ *                 summary: Lista de eventos
+ *                 value: { totalCount: 100, result: [] }
+ *               evento:
+ *                 summary: Evento concreto
+ *                 value: { id: "12345", title: "Evento ejemplo" }
+ *       500:
+ *         description: Error del servidor
  */
-router.get("/events/:id", controller.getEvent);
+router.get("/", controller.getEvents);
 
 /**
  * @swagger
  * /api/zaragoza/import:
- *   post:
- *     summary: Importar eventos desde Zaragoza
+ *   put:
+ *     summary: Importar eventos desde la API de Zaragoza a la BD
  *     tags: [Zaragoza]
  *     responses:
- *       201:
- *         description: Eventos importados
+ *       200:
+ *         description: Eventos importados correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 imported:
+ *                   type: integer
+ *                   description: Número de eventos nuevos importados
+ *                 updated:
+ *                   type: integer
+ *                   description: Número de eventos actualizados
+ *       500:
+ *         description: Error del servidor
  */
-router.post("/import", controller.importFromZaragoza);
+router.put("/import", controller.importFromZaragoza);
 
 /**
  * @swagger
  * /api/zaragoza/sync:
- *   post:
+ *   put:
  *     summary: Sincronizar manualmente eventos de Zaragoza
  *     tags: [Zaragoza]
  *     responses:
  *       200:
  *         description: Sincronización completada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Error del servidor
  */
-router.post("/sync", controller.manualSync);
+router.put("/sync", controller.manualSync);
 
 module.exports = router;
