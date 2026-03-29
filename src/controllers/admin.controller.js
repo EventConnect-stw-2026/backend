@@ -30,16 +30,68 @@ async function getDashboard(req, res) {
       enrolled: 0
     }));
 
+    // Obtener datos de actividad de los últimos 7 días
+    const last7Days = [];
+    const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 6; i >= 0; i--) {
+      const dayStart = new Date(today);
+      dayStart.setDate(dayStart.getDate() - i);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+
+      last7Days.push({
+        dayStart,
+        dayEnd,
+        label: dayLabels[(dayStart.getDay() + 6) % 7]
+      });
+    }
+
+    // Contar eventos creados por día
+    const eventSignups = await Promise.all(
+      last7Days.map(async (day) => {
+        return Event.countDocuments({
+          createdAt: { $gte: day.dayStart, $lt: day.dayEnd }
+        });
+      })
+    );
+
+    // Contar usuarios creados por día
+    const userRegistrations = await Promise.all(
+      last7Days.map(async (day) => {
+        return User.countDocuments({
+          createdAt: { $gte: day.dayStart, $lt: day.dayEnd }
+        });
+      })
+    );
+
+    // Contar reportes creados por día
+    const reportsFiled = await Promise.all(
+      last7Days.map(async (day) => {
+        return Report.countDocuments({
+          createdAt: { $gte: day.dayStart, $lt: day.dayEnd }
+        });
+      })
+    );
+
     return res.status(200).json({
       stats: {
         totalUsers,
         activeEvents,
-        pendingModeration: blockedUsers,
         totalRegistrations: totalEvents
       },
-      upcomingEvents
+      upcomingEvents,
+      activityData: {
+        labels: last7Days.map((d) => d.label),
+        eventSignups,
+        userRegistrations,
+        reportsFiled
+      }
     });
   } catch (error) {
+    console.error('Error en getDashboard:', error);
     return res.status(500).json({ message: 'Error al obtener dashboard de admin' });
   }
 }
