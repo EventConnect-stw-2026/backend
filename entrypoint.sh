@@ -26,5 +26,12 @@ else
   echo "Usuarios ya existen, no se ejecuta seed."
 fi
 
+# Ejecuta seeds adicionales
+echo "Ejecutando seed de Settings..."
+node src/utils/seedSettings.js
+
+echo "Ejecutando seed de Reports..."
+node src/utils/seedReports.js
+
 # Arranca el backend
 exec npm run dev
