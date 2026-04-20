@@ -6,41 +6,56 @@ const client = axios.create({
   baseURL: BASE_URL,
   headers: {
     Accept: "application/json"
-  }
+  },
+  //timeout: 10000 // ⏱ evita cuelgues infinitos
 });
 
 async function getEvents(start = 0, rows = 10) {
+  try {
+    const res = await client.get("/list", {
+      params: { start, rows },
+    });
 
-  const res = await client.get("/list", {
-    params: { start, rows }
-  });
+    return res.data;
 
-  return res.data;
+  } catch (err) {
+    console.error("[ZARAGOZA] Error getEvents:", err.message);
+    throw err;
+  }
 }
 
 async function getEventById(id) {
-
-  const res = await client.get(`/${id}`);
-
-  return res.data;
+  try {
+    const res = await client.get(`/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("[ZARAGOZA] Error getEventById:", err.message);
+    throw err;
+  }
 }
 
 async function getTodayEvents() {
-
-  const res = await client.get("/hoy");
-
-  return res.data;
+  try {
+    const res = await client.get("/hoy");
+    return res.data;
+  } catch (err) {
+    console.error("[ZARAGOZA] Error getTodayEvents:", err.message);
+    throw err;
+  }
 }
 
 async function searchEvents(text) {
+  try {
+    const res = await client.get("/list", {
+      params: { q: text }
+    });
 
-  const res = await client.get("/list", {
-    params: {
-      q: text
-    }
-  });
+    return res.data;
 
-  return res.data;
+  } catch (err) {
+    console.error("[ZARAGOZA] Error searchEvents:", err.message);
+    throw err;
+  }
 }
 
 module.exports = {
