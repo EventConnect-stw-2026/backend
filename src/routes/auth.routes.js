@@ -329,13 +329,122 @@ router.post("/google", loginWithGoogle);
  *       bearerFormat: JWT
  */
 
-// Historial de eventos asistidos (últimos 20)
+/**
+ * @swagger
+ * /api/auth/history:
+ *   get:
+ *     summary: Obtener historial de eventos asistidos
+ *     description: Devuelve los últimos 20 eventos a los que el usuario ha asistido, ordenados del más reciente al más antiguo con los datos del evento populados.
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Historial obtenido correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Event'
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get("/history", requireAuth, getHistory);
  
-// Eventos futuros a los que el usuario va a asistir
+/**
+ * @swagger
+ * /api/auth/attending:
+ *   get:
+ *     summary: Obtener eventos futuros a los que el usuario va a asistir
+ *     description: Devuelve los eventos con fecha futura (o sin fecha) en los que el usuario ha confirmado asistencia, con los datos del evento populados.
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Eventos de asistencia obtenidos correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Event'
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get("/attending", requireAuth, getAttending);
 
-// Recomendaciones personalizadas basadas en los eventos del usuario
+/**
+ * @swagger
+ * /api/auth/recommendations:
+ *   get:
+ *     summary: Obtener recomendaciones personalizadas de eventos
+ *     description: >
+ *       Devuelve hasta `limit` eventos recomendados basándose en las categorías
+ *       de los eventos a los que el usuario asiste o ha asistido.
+ *       Los eventos ya asistidos quedan excluidos. Se usan como máximo floor(limit/2)
+ *       categorías priorizando las más recientes, intercalando resultados para variedad.
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Número máximo de eventos a devolver
+ *     responses:
+ *       200:
+ *         description: Recomendaciones obtenidas correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 count:
+ *                   type: integer
+ *                   example: 10
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Event'
+ *                 categories:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["Deporte", "Música"]
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get("/recommendations", requireAuth, getRecommendations);
 
 module.exports = router;
