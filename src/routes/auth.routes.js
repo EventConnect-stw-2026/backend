@@ -401,10 +401,11 @@ router.get("/attending", requireAuth, getAttending);
  *   get:
  *     summary: Obtener recomendaciones personalizadas de eventos
  *     description: >
- *       Devuelve hasta `limit` eventos recomendados basándose en las categorías
- *       de los eventos a los que el usuario asiste o ha asistido.
- *       Los eventos ya asistidos quedan excluidos. Se usan como máximo floor(limit/2)
- *       categorías priorizando las más recientes, intercalando resultados para variedad.
+ *       Devuelve hasta `limit` eventos recomendados combinando dos fuentes con pesos distintos:
+ *       categorías de eventos asistidos (peso 2, preferencia demostrada) e intereses del perfil (peso 1, preferencia declarada).
+ *       Los slots por categoría son proporcionales al peso. Los eventos ya asistidos quedan excluidos.
+ *       Los resultados se intercalan entre categorías para garantizar variedad.
+ *       La sección aparece si el usuario tiene eventos asistidos O intereses declarados.
  *     tags: [Autenticación]
  *     security:
  *       - bearerAuth: []
@@ -435,9 +436,21 @@ router.get("/attending", requireAuth, getAttending);
  *                     $ref: '#/components/schemas/Event'
  *                 categories:
  *                   type: array
+ *                   description: Categorías usadas con su peso y slots asignados
  *                   items:
- *                     type: string
- *                   example: ["Deporte", "Música"]
+ *                     type: object
+ *                     properties:
+ *                       category:
+ *                         type: string
+ *                         example: Deporte
+ *                       weight:
+ *                         type: integer
+ *                         example: 6
+ *                         description: Peso total (2 por evento asistido + 1 por interés)
+ *                       slots:
+ *                         type: integer
+ *                         example: 8
+ *                         description: Número de eventos asignados a esta categoría
  *       401:
  *         description: No autenticado
  *       404:
