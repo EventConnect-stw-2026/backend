@@ -574,55 +574,94 @@ async function getAttending(req, res) {
 }
 
 
-// Endpoint para obtener recomendaciones basadas en las categorías
-// de los eventos a los que el usuario asiste o ha asistido
+// Mapa de intereses (inglés) a categorías de eventos (español)
+const INTERESTS_MAP = {
+  'sports':        'Deporte',
+  'music':         'Música',
+  'culture':       'Teatro y Artes Escénicas',
+  'gastronomy':    'Gastronomía',
+  'education':     'Formación',
+  'family':        'Ocio y Juegos',
+  'wellness':      'Aire Libre y Excursiones',
+  'solidarity':    'Medio Ambiente y Naturaleza',
+  'art':           'Artes plásticas',
+  'technology':    'Conferencias y Congresos',
+  'languages':     'Idiomas',
+  'development':   'Desarrollo personal',
+};
+ 
+// Endpoint para obtener recomendaciones personalizadas
+// Combina categorías de eventos asistidos (peso 2) e intereses del perfil (peso 1)
 async function getRecommendations(req, res) {
   try {
     const userId = req.user?.sub;
     if (!userId) return res.status(401).json({ message: 'No autenticado' });
-
+ 
     const limit = parseInt(req.query.limit) || 10;
-
-    // 1. Obtener el usuario con sus eventos populados
+    const Event = require('../models/Event');
+ 
+    // 1. Obtener usuario con eventos populados
     const user = await User.findById(userId).populate({
       path: 'attendedEvents',
       model: 'Event',
       options: { strictPopulate: false }
     });
-
+ 
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-
-    const myEvents = user.attendedEvents ?? [];
-    if (myEvents.length === 0) {
-      return res.status(200).json({ success: true, data: [], message: 'Sin eventos para basar recomendaciones' });
+ 
+    const myEvents   = user.attendedEvents ?? [];
+    const myInterests = user.interests ?? [];
+ 
+    // Si no tiene ni eventos ni intereses → sin recomendaciones
+    if (myEvents.length === 0 && myInterests.length === 0) {
+      return res.status(200).json({ success: true, data: [], message: 'Sin datos para recomendar' });
     }
-
-    // 2. Extraer categorías únicas priorizando las más recientes
-    // (attendedEvents está ordenado por fecha de inserción, las últimas son las más recientes)
-    const allCategories = [...new Set(
-      [...myEvents].reverse().map(e => e.category).filter(Boolean)
-    )];
-
-    // Con límite 10, máximo 5 categorías para que salgan al menos 2 por categoría
-    const MAX_CATS = Math.min(allCategories.length, Math.floor(limit / 2));
-    const categories = allCategories.slice(0, MAX_CATS);
-
-    if (categories.length === 0) {
+ 
+    // 2. Construir mapa de pesos por categoría
+    // Categorías de eventos asistidos → peso 2 (preferencia demostrada)
+    // Categorías de intereses         → peso 1 (preferencia declarada)
+    const weightMap = new Map();
+ 
+    // Peso 2: eventos asistidos (los más recientes primero → más relevantes)
+    [...myEvents].reverse().forEach(e => {
+      if (!e.category) return;
+      weightMap.set(e.category, (weightMap.get(e.category) ?? 0) + 2);
+    });
+ 
+    // Peso 1: intereses del perfil mapeados a categorías
+    myInterests.forEach(interest => {
+      const cat = INTERESTS_MAP[interest];
+      if (!cat) return;
+      weightMap.set(cat, (weightMap.get(cat) ?? 0) + 1);
+    });
+ 
+    if (weightMap.size === 0) {
       return res.status(200).json({ success: true, data: [] });
     }
-
-    // 3. IDs de eventos que ya tiene para excluirlos
+ 
+    // 3. Ordenar categorías por peso descendente y limitar
+    const MAX_CATS   = Math.min(weightMap.size, Math.floor(limit / 2));
+    const totalWeight = [...weightMap.values()].reduce((a, b) => a + b, 0);
+ 
+    const sortedCats = [...weightMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, MAX_CATS);
+ 
+    // 4. Calcular slots por categoría proporcionales al peso
+    // round(peso_cat / peso_total * limit), mínimo 1
+    const slots = sortedCats.map(([cat, weight]) => ({
+      cat,
+      weight,
+      slots: Math.max(1, Math.round((weight / totalWeight) * limit))
+    }));
+ 
+    // 5. IDs a excluir (eventos ya asistidos)
     const myIds = myEvents.map(e => e._id);
     const now   = new Date();
-
-    // 4. Buscar eventos por categoría de forma equilibrada
-    // Si tiene 2 categorías → 5 de cada una, si tiene 3 → 3-4 de cada una
-    const Event = require('../models/Event');
-    // Repartir eventos equitativamente entre categorías
-    const perCategory = Math.ceil(limit / categories.length);
-
+ 
+    // 6. Query por categoría con los slots calculados
     const byCategory = await Promise.all(
-      categories.map(cat =>
+      slots.map(({ cat, slots: n }) =>
         Event.find({
           status:   'active',
           category: cat,
@@ -630,12 +669,11 @@ async function getRecommendations(req, res) {
           $or: [{ startDate: { $gte: now } }, { startDate: null }]
         })
           .sort({ startDate: 1 })
-          .limit(perCategory)
+          .limit(n)
       )
     );
-
-    // Mezclar intercalando: 1 de Deporte, 1 de Música, 1 de Deporte...
-    // así la lista no sale toda de la misma categoría
+ 
+    // 7. Intercalar resultados para que no salgan todos de la misma categoría seguidos
     const interleaved = [];
     const maxLen = Math.max(...byCategory.map(arr => arr.length));
     for (let i = 0; i < maxLen; i++) {
@@ -643,16 +681,16 @@ async function getRecommendations(req, res) {
         if (arr[i]) interleaved.push(arr[i]);
       }
     }
-
+ 
     const result = interleaved.slice(0, limit);
-
+ 
     return res.status(200).json({
       success: true,
-      count: result.length,
-      data:  result,
-      categories
+      count:   result.length,
+      data:    result,
+      categories: slots.map(s => ({ category: s.cat, weight: s.weight, slots: s.slots }))
     });
-
+ 
   } catch (error) {
     console.error('GET RECOMMENDATIONS ERROR:', error);
     return res.status(500).json({ message: 'Error al obtener recomendaciones' });
