@@ -10,7 +10,7 @@ const reportSchema = new mongoose.Schema(
     involvedUser: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true
+      required: false
     },
     reportedBy: {
       type: mongoose.Schema.Types.ObjectId,

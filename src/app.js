@@ -18,6 +18,7 @@ const zaragozaRoutes = require("./routes/zaragoza.routes");
 const recommendRoutes = require('./routes/recommend.routes');
 const aiRoutes = require("./routes/ai.routes");
 const eventChatRoutes = require('./routes/event-chat.routes');
+const reportRoutes = require('./routes/report.routes');
 
 // Swagger
 const swaggerUi = require('swagger-ui-express');
@@ -51,6 +52,7 @@ app.use(helmet());
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  'http://localhost:4200',
   'http://127.0.0.1:4200'
 ];
 
@@ -92,6 +94,7 @@ app.use("/api/recommend", recommendRoutes);
 app.use("/api/meetups", meetupRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/event-chat", eventChatRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
