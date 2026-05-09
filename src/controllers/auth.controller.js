@@ -1,6 +1,27 @@
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/email');
 
+function getCookieOptions(maxAge) {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge
+  };
+}
+
+function getClearCookieOptions() {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
+  };
+}
+
 // Endpoint para actualizar perfil del usuario autenticado
 async function updateProfile(req, res) {
   try {
@@ -146,18 +167,9 @@ async function register(req, res, next) {
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000 // 15 min
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-    });
+    res.cookie('accessToken', accessToken, getCookieOptions(15 * 60 * 1000));
+    
+    res.cookie('refreshToken', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
     return res.status(201).json({
       message: 'Usuario registrado correctamente',
