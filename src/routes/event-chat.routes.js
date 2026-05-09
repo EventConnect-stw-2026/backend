@@ -191,4 +191,28 @@ router.post('/:eventId/messages', requireAuth, sendEventMessage);
  */
 router.get('/:eventId/friends', requireAuth, getFriendsAttending);
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     EventMessage:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         eventId:
+ *           type: string
+ *           description: ID del evento al que pertenece el mensaje
+ *         sender:
+ *           $ref: '#/components/schemas/UserPublic'
+ *         content:
+ *           type: string
+ *           example: "¡Nos vemos allí a las 10!"
+ *           minLength: 1
+ *           maxLength: 1000
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ */
+
 module.exports = router;
