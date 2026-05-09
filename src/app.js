@@ -36,6 +36,10 @@ const swaggerDefinition = {
       url: 'http://localhost:3001',
       description: 'Servidor local',
     },
+      {
+      url: 'https://backend-hi6i.onrender.com',
+      description: "Servidor de producción"
+    },
   ],
 };
 
