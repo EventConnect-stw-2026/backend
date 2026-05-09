@@ -18,6 +18,16 @@ const {
 
 const cookieParser = require('cookie-parser');
 const requireAuth = require('../middlewares/auth.middleware');
+const validateRequest = require('../middlewares/validateRequest');
+const { body } = require('express-validator');
+
+const resetPasswordValidator = [
+  body('password')
+    .notEmpty().withMessage('La contraseña es obligatoria')
+    .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+  body('token')
+    .notEmpty().withMessage('El token es obligatorio')
+];
 
 /**
  * @swagger
@@ -100,6 +110,7 @@ router.post("/refresh", refreshToken);
  * /api/auth/logout:
  *   post:
  *     summary: Cerrar sesión
+ *     description: Elimina las cookies de sesión del usuario. No requiere autenticación.
  *     tags: [Autenticación]
  *     responses:
  *       200:
@@ -151,9 +162,8 @@ router.post("/forgot-password", requestPasswordReset);
  *       400:
  *         description: Token inválido o expirado
  */
-router.post("/reset-password", resetPassword);
+router.post("/reset-password", resetPasswordValidator, validateRequest, resetPassword);
 
-const validateRequest = require("../middlewares/validateRequest");
 
 const {
   registerValidator,
