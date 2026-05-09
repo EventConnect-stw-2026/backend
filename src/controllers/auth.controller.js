@@ -1,5 +1,12 @@
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+
+const User = require('../models/User');
 const { sendEmail } = require('../utils/email');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function getCookieOptions(maxAge) {
   const isProduction = process.env.NODE_ENV === 'production';
@@ -21,102 +28,6 @@ function getClearCookieOptions() {
     sameSite: isProduction ? 'none' : 'lax'
   };
 }
-
-// Endpoint para actualizar perfil del usuario autenticado
-async function updateProfile(req, res) {
-  try {
-    const userId = req.user?.sub;
-    if (!userId) {
-      return res.status(401).json({ message: 'No autenticado' });
-    }
-    const {
-      name,
-      username,
-      avatarUrl,
-      bio,
-      location,
-      interests,
-      passwordChange
-    } = req.body;
-
-    const updateFields = {
-      name,
-      username,
-      avatarUrl,
-      bio,
-      location,
-      interests
-    };
-
-    // Actualizar contraseña si se solicita
-    if (passwordChange && passwordChange.currentPassword && passwordChange.newPassword) {
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-      const isValidPassword = await bcrypt.compare(passwordChange.currentPassword, user.passwordHash);
-      if (!isValidPassword) {
-        return res.status(401).json({ message: 'Contraseña actual incorrecta' });
-      }
-      updateFields.passwordHash = await bcrypt.hash(passwordChange.newPassword, 10);
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-    return res.status(200).json({
-      message: 'Perfil actualizado correctamente',
-      user: {
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        username: updatedUser.username,
-        avatarUrl: updatedUser.avatarUrl,
-        bio: updatedUser.bio,
-        location: updatedUser.location,
-        interests: updatedUser.interests || []
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error al actualizar perfil' });
-  }
-}
-// Endpoint para obtener perfil del usuario autenticado
-async function getProfile(req, res) {
-  try {
-    const userId = req.user?.sub;
-    if (!userId) {
-      return res.status(401).json({ message: 'No autenticado' });
-    }
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-    return res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      username: user.username,
-      role: user.role,
-      isBlocked: user.isBlocked,
-      avatarUrl: user.avatarUrl,
-      bio: user.bio,
-      location: user.location,
-      interests: user.interests || [],
-      attendedEvents: user.attendedEvents || [],
-      savedEvents: user.savedEvents || []
-    });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error al obtener perfil' });
-  }
-}
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { OAuth2Client } = require('google-auth-library');
-const User = require('../models/User');
-
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function generateToken(user, expiresIn = '15m') {
   return jwt.sign(
@@ -140,6 +51,37 @@ function generateRefreshToken(user) {
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: '7d' }
   );
+}
+
+function setAuthCookies(res, accessToken, refreshToken) {
+  res.cookie(
+    'accessToken',
+    accessToken,
+    getCookieOptions(15 * 60 * 1000)
+  );
+
+  res.cookie(
+    'refreshToken',
+    refreshToken,
+    getCookieOptions(7 * 24 * 60 * 60 * 1000)
+  );
+}
+
+function buildUserResponse(user) {
+  return {
+    _id: user._id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    isBlocked: user.isBlocked,
+    avatarUrl: user.avatarUrl,
+    bio: user.bio,
+    location: user.location,
+    interests: user.interests || [],
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
 }
 
 async function register(req, res, next) {
@@ -167,28 +109,14 @@ async function register(req, res, next) {
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.cookie('accessToken', accessToken, getCookieOptions(15 * 60 * 1000));
-    
-    res.cookie('refreshToken', refreshToken, getCookieOptions(7 * 24 * 60 * 60 * 1000));
+    setAuthCookies(res, accessToken, refreshToken);
 
     return res.status(201).json({
       message: 'Usuario registrado correctamente',
-      user: {
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        isBlocked: user.isBlocked,
-        avatarUrl: user.avatarUrl,
-        bio: user.bio,
-        location: user.location,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      }
+      user: buildUserResponse(user)
     });
   } catch (error) {
-    console.error("REGISTER ERROR:");
+    console.error('REGISTER ERROR:');
     console.error(error);
     console.error(error.stack);
     return res.status(500).json({ message: 'Error en el servidor' });
@@ -222,41 +150,17 @@ async function login(req, res, next) {
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000 // 15 min
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-    });
+    setAuthCookies(res, accessToken, refreshToken);
 
     return res.status(200).json({
       message: 'Login correcto',
-      user: {
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        isBlocked: user.isBlocked,
-        avatarUrl: user.avatarUrl,
-        bio: user.bio,
-        location: user.location,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      }
+      user: buildUserResponse(user)
     });
   } catch (error) {
-    console.error("LOGIN ERROR:");
+    console.error('LOGIN ERROR:');
     console.error(error);
     console.error(error.stack);
     return res.status(500).json({ message: 'Error en el servidor' });
-
   }
 }
 
@@ -268,7 +172,6 @@ async function loginWithGoogle(req, res, next) {
       return res.status(400).json({ message: 'Token de Google requerido' });
     }
 
-    // Verificar token de Google
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID
@@ -277,12 +180,11 @@ async function loginWithGoogle(req, res, next) {
     const payload = ticket.getPayload();
     const { email, name, picture } = payload;
 
-    // Buscar usuario existente
     let user = await User.findOne({ email });
 
-    // Si no existe y es REGISTRO, crear
     if (!user && isRegistering) {
       const username = email.split('@')[0] + Math.random().toString(36).slice(2, 9);
+
       user = await User.create({
         name,
         username,
@@ -294,10 +196,9 @@ async function loginWithGoogle(req, res, next) {
       });
     }
 
-    // Si no existe y es LOGIN, error
     if (!user && !isRegistering) {
-      return res.status(401).json({ 
-        message: 'Esta cuenta no existe. Por favor, regístrate primero' 
+      return res.status(401).json({
+        message: 'Esta cuenta no existe. Por favor, regístrate primero'
       });
     }
 
@@ -308,34 +209,11 @@ async function loginWithGoogle(req, res, next) {
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000 // 15 min
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-    });
+    setAuthCookies(res, accessToken, refreshToken);
 
     return res.status(200).json({
       message: 'Autenticación exitosa',
-      user: {
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        isBlocked: user.isBlocked,
-        avatarUrl: user.avatarUrl,
-        bio: user.bio,
-        location: user.location,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      }
+      user: buildUserResponse(user)
     });
   } catch (error) {
     console.error('GOOGLE LOGIN ERROR:', error);
@@ -343,52 +221,163 @@ async function loginWithGoogle(req, res, next) {
   }
 }
 
-// Endpoint para renovar access token
 async function refreshToken(req, res) {
   try {
     const refreshToken = req.cookies.refreshToken;
+
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token no proporcionado' });
     }
+
     let payload;
+
     try {
       payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     } catch (err) {
       return res.status(401).json({ message: 'Refresh token inválido o expirado' });
     }
+
     const user = await User.findById(payload.sub);
+
     if (!user) {
       return res.status(401).json({ message: 'Usuario no encontrado' });
     }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ message: 'Usuario bloqueado' });
+    }
+
     const accessToken = generateToken(user);
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000
-    });
+
+    res.cookie(
+      'accessToken',
+      accessToken,
+      getCookieOptions(15 * 60 * 1000)
+    );
+
     return res.status(200).json({ message: 'Access token renovado' });
   } catch (error) {
+    console.error('REFRESH TOKEN ERROR:', error);
     return res.status(500).json({ message: 'Error al renovar token' });
   }
 }
 
-// Endpoint para logout
 async function logout(req, res) {
-  res.clearCookie('accessToken', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
-  });
-  res.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
-  });
+  res.clearCookie('accessToken', getClearCookieOptions());
+  res.clearCookie('refreshToken', getClearCookieOptions());
+
   return res.status(200).json({ message: 'Logout exitoso' });
 }
 
-// Endpoint para solicitar recuperación de contraseña
+async function getProfile(req, res) {
+  try {
+    const userId = req.user?.sub;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    return res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      isBlocked: user.isBlocked,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      location: user.location,
+      interests: user.interests || [],
+      attendedEvents: user.attendedEvents || [],
+      savedEvents: user.savedEvents || []
+    });
+  } catch (error) {
+    console.error('GET PROFILE ERROR:', error);
+    return res.status(500).json({ message: 'Error al obtener perfil' });
+  }
+}
+
+async function updateProfile(req, res) {
+  try {
+    const userId = req.user?.sub;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
+
+    const {
+      name,
+      username,
+      avatarUrl,
+      bio,
+      location,
+      interests,
+      passwordChange
+    } = req.body;
+
+    const updateFields = {
+      name,
+      username,
+      avatarUrl,
+      bio,
+      location,
+      interests
+    };
+
+    if (passwordChange && passwordChange.currentPassword && passwordChange.newPassword) {
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+
+      const isValidPassword = await bcrypt.compare(
+        passwordChange.currentPassword,
+        user.passwordHash
+      );
+
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+      }
+
+      updateFields.passwordHash = await bcrypt.hash(passwordChange.newPassword, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateFields,
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    return res.status(200).json({
+      message: 'Perfil actualizado correctamente',
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        avatarUrl: updatedUser.avatarUrl,
+        bio: updatedUser.bio,
+        location: updatedUser.location,
+        interests: updatedUser.interests || []
+      }
+    });
+  } catch (error) {
+    console.error('UPDATE PROFILE ERROR:', error);
+    return res.status(500).json({ message: 'Error al actualizar perfil' });
+  }
+}
+
 async function requestPasswordReset(req, res) {
   try {
     const { email } = req.body;
@@ -396,7 +385,6 @@ async function requestPasswordReset(req, res) {
     const user = await User.findOne({ email });
 
     if (!user) {
-      // CORREO NO REGISTRADO
       return res.status(404).json({
         message: 'Este correo no está registrado en EventConnect'
       });
@@ -407,9 +395,10 @@ async function requestPasswordReset(req, res) {
 
     user.resetPasswordToken = token;
     user.resetPasswordExpires = new Date(expires);
+
     await user.save();
 
-        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
     await sendEmail({
       to: user.email,
@@ -443,19 +432,17 @@ async function requestPasswordReset(req, res) {
         </head>
         <body>
           <div class="container">
-            <!-- Header -->
             <div class="header">
               <div class="logo">🎯 EventConnect</div>
               <h1>Recupera tu contraseña</h1>
               <p>Solicitud de restablecimiento seguro</p>
             </div>
 
-            <!-- Contenido -->
             <div class="content">
               <h2>Hola ${user.name || user.username},</h2>
-              
+
               <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>EventConnect</strong>.</p>
-              
+
               <p>Si fuiste tú quien realizó esta solicitud, haz clic en el botón de abajo para crear una nueva contraseña:</p>
 
               <div class="button-wrapper">
@@ -476,7 +463,6 @@ async function requestPasswordReset(req, res) {
               </p>
             </div>
 
-            <!-- Footer -->
             <div class="footer">
               <p><strong>EventConnect</strong> - Conecta con tu ciudad</p>
               <p>© 2026 EventConnect. Todos los derechos reservados.</p>
@@ -490,7 +476,6 @@ async function requestPasswordReset(req, res) {
       `
     });
 
-    // CORREO EXISTE → OK
     return res.status(200).json({
       message: 'Hemos enviado un enlace de recuperación a tu correo'
     });
@@ -500,7 +485,6 @@ async function requestPasswordReset(req, res) {
   }
 }
 
-// Endpoint para restablecer contraseña usando token
 async function resetPassword(req, res) {
   try {
     const { token, password } = req.body;
@@ -529,180 +513,189 @@ async function resetPassword(req, res) {
   }
 }
 
-
-// Endpoint para obtener historial de eventos asistidos (últimos 20, populados)
 async function getHistory(req, res) {
   try {
     const userId = req.user?.sub;
-    if (!userId) return res.status(401).json({ message: 'No autenticado' });
 
-    const user = await User.findById(userId)
-      .populate({
-        path: 'attendedEvents',
-        model: 'Event',
-        options: { strictPopulate: false }
-      });
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
 
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    const user = await User.findById(userId).populate({
+      path: 'attendedEvents',
+      model: 'Event',
+      options: { strictPopulate: false }
+    });
 
-    // Los últimos 20, del más reciente al más antiguo
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
     const history = [...(user.attendedEvents || [])]
       .reverse()
       .slice(0, 20);
 
-    return res.status(200).json({ success: true, data: history });
+    return res.status(200).json({
+      success: true,
+      data: history
+    });
   } catch (error) {
     console.error('GET HISTORY ERROR:', error);
     return res.status(500).json({ message: 'Error al obtener historial' });
   }
 }
 
-// Endpoint para obtener eventos a los que el usuario va a asistir (futuros)
 async function getAttending(req, res) {
   try {
     const userId = req.user?.sub;
-    if (!userId) return res.status(401).json({ message: 'No autenticado' });
 
-    const user = await User.findById(userId)
-      .populate({
-        path: 'attendedEvents',
-        model: 'Event',
-        options: { strictPopulate: false }
-      });
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
 
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    const user = await User.findById(userId).populate({
+      path: 'attendedEvents',
+      model: 'Event',
+      options: { strictPopulate: false }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
 
     const now = new Date();
-    // Solo eventos futuros o sin fecha (permanentes)
+
     const attending = (user.attendedEvents || []).filter(
-      (e) => !e.startDate || new Date(e.startDate) >= now
+      (event) => !event.startDate || new Date(event.startDate) >= now
     );
 
-    return res.status(200).json({ success: true, data: attending });
+    return res.status(200).json({
+      success: true,
+      data: attending
+    });
   } catch (error) {
     console.error('GET ATTENDING ERROR:', error);
     return res.status(500).json({ message: 'Error al obtener eventos de asistencia' });
   }
 }
 
-
-// Mapa de intereses (inglés) a categorías de eventos (español)
 const INTERESTS_MAP = {
-  'sports':        'Deporte',
-  'music':         'Música',
-  'culture':       'Teatro y Artes Escénicas',
-  'gastronomy':    'Gastronomía',
-  'education':     'Formación',
-  'family':        'Ocio y Juegos',
-  'wellness':      'Aire Libre y Excursiones',
-  'solidarity':    'Medio Ambiente y Naturaleza',
-  'art':           'Artes plásticas',
-  'technology':    'Conferencias y Congresos',
-  'languages':     'Idiomas',
-  'development':   'Desarrollo personal',
+  sports: 'Deporte',
+  music: 'Música',
+  culture: 'Teatro y Artes Escénicas',
+  gastronomy: 'Gastronomía',
+  education: 'Formación',
+  family: 'Ocio y Juegos',
+  wellness: 'Aire Libre y Excursiones',
+  solidarity: 'Medio Ambiente y Naturaleza',
+  art: 'Artes plásticas',
+  technology: 'Conferencias y Congresos',
+  languages: 'Idiomas',
+  development: 'Desarrollo personal'
 };
- 
-// Endpoint para obtener recomendaciones personalizadas
-// Combina categorías de eventos asistidos (peso 2) e intereses del perfil (peso 1)
+
 async function getRecommendations(req, res) {
   try {
     const userId = req.user?.sub;
-    if (!userId) return res.status(401).json({ message: 'No autenticado' });
- 
+
+    if (!userId) {
+      return res.status(401).json({ message: 'No autenticado' });
+    }
+
     const limit = parseInt(req.query.limit) || 10;
     const Event = require('../models/Event');
- 
-    // 1. Obtener usuario con eventos populados
+
     const user = await User.findById(userId).populate({
       path: 'attendedEvents',
       model: 'Event',
       options: { strictPopulate: false }
     });
- 
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
- 
-    const myEvents   = user.attendedEvents ?? [];
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const myEvents = user.attendedEvents ?? [];
     const myInterests = user.interests ?? [];
- 
-    // Si no tiene ni eventos ni intereses → sin recomendaciones
+
     if (myEvents.length === 0 && myInterests.length === 0) {
-      return res.status(200).json({ success: true, data: [], message: 'Sin datos para recomendar' });
+      return res.status(200).json({
+        success: true,
+        data: [],
+        message: 'Sin datos para recomendar'
+      });
     }
- 
-    // 2. Construir mapa de pesos por categoría
-    // Categorías de eventos asistidos → peso 2 (preferencia demostrada)
-    // Categorías de intereses         → peso 1 (preferencia declarada)
+
     const weightMap = new Map();
- 
-    // Peso 2: eventos asistidos (los más recientes primero → más relevantes)
-    [...myEvents].reverse().forEach(e => {
-      if (!e.category) return;
-      weightMap.set(e.category, (weightMap.get(e.category) ?? 0) + 2);
+
+    [...myEvents].reverse().forEach((event) => {
+      if (!event.category) return;
+      weightMap.set(event.category, (weightMap.get(event.category) ?? 0) + 2);
     });
- 
-    // Peso 1: intereses del perfil mapeados a categorías
-    myInterests.forEach(interest => {
-      const cat = INTERESTS_MAP[interest];
-      if (!cat) return;
-      weightMap.set(cat, (weightMap.get(cat) ?? 0) + 1);
+
+    myInterests.forEach((interest) => {
+      const category = INTERESTS_MAP[interest];
+      if (!category) return;
+      weightMap.set(category, (weightMap.get(category) ?? 0) + 1);
     });
- 
+
     if (weightMap.size === 0) {
-      return res.status(200).json({ success: true, data: [] });
+      return res.status(200).json({
+        success: true,
+        data: []
+      });
     }
- 
-    // 3. Ordenar categorías por peso descendente y limitar
-    const MAX_CATS   = Math.min(weightMap.size, Math.floor(limit / 2));
+
+    const maxCategories = Math.min(weightMap.size, Math.floor(limit / 2));
     const totalWeight = [...weightMap.values()].reduce((a, b) => a + b, 0);
- 
-    const sortedCats = [...weightMap.entries()]
+
+    const sortedCategories = [...weightMap.entries()]
       .sort((a, b) => b[1] - a[1])
-      .slice(0, MAX_CATS);
- 
-    // 4. Calcular slots por categoría proporcionales al peso
-    // round(peso_cat / peso_total * limit), mínimo 1
-    const slots = sortedCats.map(([cat, weight]) => ({
-      cat,
+      .slice(0, maxCategories);
+
+    const slots = sortedCategories.map(([category, weight]) => ({
+      cat: category,
       weight,
       slots: Math.max(1, Math.round((weight / totalWeight) * limit))
     }));
- 
-    // 5. IDs a excluir (eventos ya asistidos)
-    const myIds = myEvents.map(e => e._id);
-    const now   = new Date();
- 
-    // 6. Query por categoría con los slots calculados
+
+    const myIds = myEvents.map((event) => event._id);
+    const now = new Date();
+
     const byCategory = await Promise.all(
       slots.map(({ cat, slots: n }) =>
         Event.find({
-          status:   'active',
+          status: 'active',
           category: cat,
-          _id:      { $nin: myIds },
+          _id: { $nin: myIds },
           $or: [{ startDate: { $gte: now } }, { startDate: null }]
         })
           .sort({ startDate: 1 })
           .limit(n)
       )
     );
- 
-    // 7. Intercalar resultados para que no salgan todos de la misma categoría seguidos
+
     const interleaved = [];
-    const maxLen = Math.max(...byCategory.map(arr => arr.length));
+    const maxLen = Math.max(...byCategory.map((arr) => arr.length));
+
     for (let i = 0; i < maxLen; i++) {
       for (const arr of byCategory) {
         if (arr[i]) interleaved.push(arr[i]);
       }
     }
- 
+
     const result = interleaved.slice(0, limit);
- 
+
     return res.status(200).json({
       success: true,
-      count:   result.length,
-      data:    result,
-      categories: slots.map(s => ({ category: s.cat, weight: s.weight, slots: s.slots }))
+      count: result.length,
+      data: result,
+      categories: slots.map((slot) => ({
+        category: slot.cat,
+        weight: slot.weight,
+        slots: slot.slots
+      }))
     });
- 
   } catch (error) {
     console.error('GET RECOMMENDATIONS ERROR:', error);
     return res.status(500).json({ message: 'Error al obtener recomendaciones' });
