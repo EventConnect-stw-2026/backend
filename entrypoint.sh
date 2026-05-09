@@ -14,14 +14,23 @@ node -e "
 require('dotenv').config();
 const mongoose = require('mongoose');
 
+console.log('MONGODB_URI definida:', process.env.MONGODB_URI ? 'SI' : 'NO');
+
 (async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI no está definida');
+    }
+
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000
+    });
+
     console.log('MongoDB disponible');
     await mongoose.disconnect();
     process.exit(0);
   } catch (e) {
-    console.error('Error conectando con MongoDB:', e.message);
+    console.error('ERROR_REAL_MONGODB:', e);
     process.exit(1);
   }
 })();
