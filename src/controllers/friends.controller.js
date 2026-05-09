@@ -250,11 +250,20 @@ async function getSuggestedFriends(req, res) {
     const suggestedMap = new Map();
 
     friendsOfFriends.forEach(req => {
-      const suggestedUser = req.fromUser._id.toString() === userId.toString() 
-        ? req.toUser 
-        : req.fromUser._id.toString() !== userId.toString() && req.fromUser._id.toString() !== userId.toString()
-        ? (req.fromUser._id.toString() !== userId.toString() ? req.fromUser : req.toUser)
-        : req.toUser;
+      // De cada relación de amistad, extraer el usuario que NO es el userId
+      // ni ninguno de sus amigos directos — ese es el candidato a sugerir
+      const fromId = req.fromUser._id.toString();
+      const toId   = req.toUser._id.toString();
+
+      // El candidato es el extremo que no es uno de nuestros amigos directos ni nosotros mismos
+      let suggestedUser = null;
+      if (fromId !== userId && !friendIds.some(id => id.toString() === fromId)) {
+        suggestedUser = req.fromUser;
+      } else if (toId !== userId && !friendIds.some(id => id.toString() === toId)) {
+        suggestedUser = req.toUser;
+      }
+
+      if (!suggestedUser) return;
 
       // No sugerir si ya es amigo, es el mismo usuario, o ya tiene solicitud enviada
       if (
