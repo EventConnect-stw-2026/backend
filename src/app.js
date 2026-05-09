@@ -55,7 +55,8 @@ app.use(helmet({
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:4200',
-  'http://127.0.0.1:4200'
+  'http://127.0.0.1:4200',
+  'https://frontend-c9bg.onrender.com'
 ];
 
 app.use(cors({
