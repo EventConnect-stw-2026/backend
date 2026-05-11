@@ -2,6 +2,7 @@ const Report = require('../models/Report');
 const EventMessage = require('../models/EventMessage');
 const Event = require('../models/Event');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 // POST /api/reports
 async function createReport(req, res) {
@@ -62,7 +63,7 @@ async function createReport(req, res) {
 
     return res.status(201).json({ success: true, data: newReport });
   } catch (error) {
-    console.error('CREATE REPORT ERROR:', error);
+    logger.error('CREATE REPORT ERROR', { error });
     return res.status(500).json({ message: 'Error al crear reporte' });
   }
 }
@@ -77,7 +78,7 @@ async function getMyReports(req, res) {
 
     return res.status(200).json({ success: true, data: reports });
   } catch (error) {
-    console.error('GET MY REPORTS ERROR:', error);
+    logger.error('GET MY REPORTS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener tus reportes' });
   }
 }

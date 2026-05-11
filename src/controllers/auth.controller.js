@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/email');
+const logger = require('../utils/logger');
 
 // Endpoint para actualizar perfil del usuario autenticado
 async function updateProfile(req, res) {
@@ -176,9 +177,7 @@ async function register(req, res, next) {
       }
     });
   } catch (error) {
-    console.error("REGISTER ERROR:");
-    console.error(error);
-    console.error(error.stack);
+    logger.error('REGISTER ERROR', { error });
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 }
@@ -240,9 +239,7 @@ async function login(req, res, next) {
       }
     });
   } catch (error) {
-    console.error("LOGIN ERROR:");
-    console.error(error);
-    console.error(error.stack);
+    logger.error('LOGIN ERROR', { error });
     return res.status(500).json({ message: 'Error en el servidor' });
 
   }
@@ -326,7 +323,7 @@ async function loginWithGoogle(req, res, next) {
       }
     });
   } catch (error) {
-    console.error('GOOGLE LOGIN ERROR:', error);
+    logger.error('GOOGLE LOGIN ERROR', { error });
     return res.status(401).json({ message: 'Token de Google inválido o expirado' });
   }
 }
@@ -483,7 +480,7 @@ async function requestPasswordReset(req, res) {
       message: 'Hemos enviado un enlace de recuperación a tu correo'
     });
   } catch (error) {
-    console.error('REQUEST PASSWORD RESET ERROR:', error);
+    logger.error('REQUEST PASSWORD RESET ERROR', { error });
     return res.status(500).json({ message: 'Error al solicitar recuperación de contraseña' });
   }
 }
@@ -512,7 +509,7 @@ async function resetPassword(req, res) {
 
     return res.status(200).json({ message: 'Contraseña restablecida correctamente' });
   } catch (error) {
-    console.error('RESET PASSWORD ERROR:', error);
+    logger.error('RESET PASSWORD ERROR', { error });
     return res.status(500).json({ message: 'Error al restablecer contraseña' });
   }
 }
@@ -540,7 +537,7 @@ async function getHistory(req, res) {
 
     return res.status(200).json({ success: true, data: history });
   } catch (error) {
-    console.error('GET HISTORY ERROR:', error);
+    logger.error('GET HISTORY ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener historial' });
   }
 }
@@ -568,7 +565,7 @@ async function getAttending(req, res) {
 
     return res.status(200).json({ success: true, data: attending });
   } catch (error) {
-    console.error('GET ATTENDING ERROR:', error);
+    logger.error('GET ATTENDING ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener eventos de asistencia' });
   }
 }
@@ -692,7 +689,7 @@ async function getRecommendations(req, res) {
     });
  
   } catch (error) {
-    console.error('GET RECOMMENDATIONS ERROR:', error);
+    logger.error('GET RECOMMENDATIONS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener recomendaciones' });
   }
 }

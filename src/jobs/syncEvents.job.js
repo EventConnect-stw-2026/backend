@@ -3,10 +3,11 @@ const cron = require("node-cron");
 const importEvents = require("../services/importEvents.service");
 const updateExpiredEvents = require("../services/eventStatus.service");
 const deleteOldEvents = require("../services/deleteOldEvents.service");
+const logger = require("../utils/logger");
 
 async function runSync() {
 
-  console.log("Starting Zaragoza sync");
+  logger.info('Starting Zaragoza sync');
 
   const importResult = await importEvents();
 
@@ -14,7 +15,7 @@ async function runSync() {
 
   const deletedCount = await deleteOldEvents();
 
-  console.log("Sync finished", {
+  logger.info('Sync finished', {
     imported: importResult.imported,
     updated: importResult.updated,
     expiredUpdated: expiredCount,
@@ -30,12 +31,12 @@ function startEventSync() {
     try {
       await runSync();
     } catch (err) {
-      console.error("Sync error:", err);
+      logger.error('Sync error', { error: err });
     }
 
   });
 
-  console.log("Event sync scheduled (every 6 hours)");
+  logger.info('Event sync scheduled (every 6 hours)');
 
 }
 

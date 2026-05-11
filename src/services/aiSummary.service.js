@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const logger = require("../utils/logger");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function generateSummary(events) {
@@ -50,7 +51,7 @@ ${JSON.stringify(simplified, null, 2)}
     let text = result.response.text();
     if (!text) throw new Error("Texto vacío de IA");
 
-    console.log("IA RAW:", text);
+    logger.debug('IA RAW', { text });
 
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
@@ -65,7 +66,7 @@ ${JSON.stringify(simplified, null, 2)}
     try {
       parsed = JSON.parse(cleanJson);
     } catch (err) {
-      console.log("FALLBACK PARSE ACTIVADO");
+      logger.warn('FALLBACK PARSE ACTIVADO', { error: err.message });
       return {
         summary: text.substring(0, 500),
         highlights: events.slice(0, 3).map(e => ({
@@ -84,7 +85,7 @@ ${JSON.stringify(simplified, null, 2)}
     };
 
   } catch (err) {
-    console.error("ERROR IA:", err);
+    logger.error('ERROR IA', { error: err });
     return {
       summary: "No se pudo generar el resumen.",
       highlights: events.slice(0, 3).map(e => ({

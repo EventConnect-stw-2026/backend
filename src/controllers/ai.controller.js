@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
 const generateSummary = require("../services/aiSummary.service");
+const logger = require("../utils/logger");
 
 async function getSummary(req, res) {
   try {
@@ -29,7 +30,7 @@ async function getSummary(req, res) {
     });
 
   } catch (err) {
-    console.error(err);
+    logger.error('Error generando resumen', { error: err });
     res.status(500).json({ error: "Error generando resumen" });
   }
 }
