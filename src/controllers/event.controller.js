@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
 const User = require("../models/User");
+const logger = require("../utils/logger");
 
 const getAllEvents = async (req, res, next) => {
   try {
@@ -139,7 +140,7 @@ const deleteEvent = async (req, res, next) => {
 
 const toggleAttendance = async (req, res, next) => {
   try {
-    console.log("ESTO VA DENTRO DEL TOKEN:", req.user);
+    logger.debug('toggleAttendance - token user', { user: req.user });
     const eventId = req.params.id;
     const userId = req.user.sub; 
 

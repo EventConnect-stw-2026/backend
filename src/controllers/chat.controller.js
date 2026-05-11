@@ -3,6 +3,7 @@ const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
+const logger = require('../utils/logger');
 
 function isValidObjectId(id) {
   return mongoose.Types.ObjectId.isValid(id);
@@ -90,7 +91,7 @@ async function createOrGetConversation(req, res) {
       }
     });
   } catch (error) {
-    console.error('CREATE OR GET CONVERSATION ERROR:', error);
+    logger.error('CREATE OR GET CONVERSATION ERROR', { error });
     return res.status(500).json({ message: 'Error al crear u obtener la conversación' });
   }
 }
@@ -138,7 +139,7 @@ async function getMyConversations(req, res) {
       count: data.length
     });
   } catch (error) {
-    console.error('GET MY CONVERSATIONS ERROR:', error);
+    logger.error('GET MY CONVERSATIONS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener conversaciones' });
   }
 }
@@ -190,7 +191,7 @@ async function getConversationMessages(req, res) {
       messages
     });
   } catch (error) {
-    console.error('GET CONVERSATION MESSAGES ERROR:', error);
+    logger.error('GET CONVERSATION MESSAGES ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener mensajes' });
   }
 }
@@ -256,7 +257,7 @@ async function sendMessage(req, res) {
       chatMessage: populatedMessage
     });
   } catch (error) {
-    console.error('SEND MESSAGE ERROR:', error);
+    logger.error('SEND MESSAGE ERROR', { error });
     return res.status(500).json({ message: 'Error al enviar mensaje' });
   }
 }
@@ -305,7 +306,7 @@ async function markConversationAsRead(req, res) {
       updatedCount: result.modifiedCount || 0
     });
   } catch (error) {
-    console.error('MARK CONVERSATION AS READ ERROR:', error);
+    logger.error('MARK CONVERSATION AS READ ERROR', { error });
     return res.status(500).json({ message: 'Error al marcar mensajes como leídos' });
   }
 }
@@ -342,7 +343,7 @@ async function getUnreadCountsByFriend(req, res) {
       unreadMessagesByFriend
     });
   } catch (error) {
-    console.error('GET UNREAD COUNTS BY FRIEND ERROR:', error);
+    logger.error('GET UNREAD COUNTS BY FRIEND ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener mensajes no leídos por amigo' });
   }
 }

@@ -1,8 +1,11 @@
+const logger = require('../utils/logger');
+
 const errorHandler = (err, req, res, next) => {
-  console.error('Error:', err);
-  if (err.stack) {
-    console.error('Stack:', err.stack);
-  }
+  logger.error('Unhandled error', {
+    error: err,
+    method: req.method,
+    url: req.originalUrl
+  });
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Error interno del servidor"

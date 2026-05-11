@@ -1,6 +1,7 @@
 const EventMessage = require('../models/EventMessage');
 const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
+const logger = require('../utils/logger');
 
 // GET /api/event-chat/:eventId/messages
 async function getEventMessages(req, res) {
@@ -14,7 +15,7 @@ async function getEventMessages(req, res) {
 
     return res.status(200).json({ success: true, data: messages });
   } catch (error) {
-    console.error('GET EVENT MESSAGES ERROR:', error);
+    logger.error('GET EVENT MESSAGES ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener mensajes' });
   }
 }
@@ -51,7 +52,7 @@ async function sendEventMessage(req, res) {
 
     return res.status(201).json({ success: true, data: populated });
   } catch (error) {
-    console.error('SEND EVENT MESSAGE ERROR:', error);
+    logger.error('SEND EVENT MESSAGE ERROR', { error });
     return res.status(500).json({ message: 'Error al enviar mensaje' });
   }
 }
@@ -87,7 +88,7 @@ async function getFriendsAttending(req, res) {
 
     return res.status(200).json({ success: true, data: friendsAttending });
   } catch (error) {
-    console.error('GET FRIENDS ATTENDING ERROR:', error);
+    logger.error('GET FRIENDS ATTENDING ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener amigos' });
   }
 }

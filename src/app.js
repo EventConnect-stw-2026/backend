@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const logger = require("./utils/logger");
 
 const eventRoutes = require("./routes/event.routes");
 const authRoutes = require('./routes/auth.routes');
@@ -71,7 +72,8 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(morgan("dev"));
+const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+app.use(morgan(morganFormat, { stream: logger.stream }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 

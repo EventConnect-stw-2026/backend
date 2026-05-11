@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Event = require("../models/Event");
+const logger = require("../utils/logger");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -71,7 +72,7 @@ router.post("/", async (req, res) => {
   try {
     const { companion, vibe } = req.body;
 
-    console.log("BODY:", req.body);
+    logger.debug('RECOMMEND BODY', { body: req.body });
 
     if (!companion || !vibe) {
       return res.status(400).json({ message: "Faltan parámetros" });
@@ -124,7 +125,7 @@ Reglas:
     const result = await model.generateContent(prompt);
     const aiCategory = result.response.text().trim().toLowerCase().replace(/[^a-záéíóúñ]/gi, '');
 
-    console.log("IA CATEGORY:", aiCategory);
+    logger.debug('IA CATEGORY', { aiCategory });
 
     const dbCategories = categoryMap[aiCategory] || ["Deporte"];
 
@@ -135,12 +136,12 @@ Reglas:
       .sort({ startDate: 1 })
       .limit(6);
 
-    console.log("EVENTS FOUND:", events.length);
+    logger.debug('RECOMMEND EVENTS FOUND', { count: events.length });
 
     res.json({ events, category: aiCategory });
 
   } catch (error) {
-    console.error("❌ ERROR EN /api/recommend:", error);
+    logger.error('ERROR EN /api/recommend', { error });
     res.status(500).json({ message: "Error interno" });
   }
 });

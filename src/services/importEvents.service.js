@@ -1,6 +1,7 @@
 const Event = require("../models/Event");
 const Zaragoza = require("./zaragoza.service");
 const mapEvent = require("../models/eventMapper");
+const logger = require("../utils/logger");
 
 async function importEvents() {
   let start = 0;
@@ -11,7 +12,7 @@ async function importEvents() {
 
   try {
     while (start < total) {
-      console.log(`[IMPORT] Fetching events: start=${start}, rows=${rows}`);
+      logger.info('[IMPORT] Fetching events', { start, rows });
 
       const data = await Zaragoza.getEvents(start, rows);
 
@@ -27,7 +28,7 @@ async function importEvents() {
           const mapped = mapEvent(rawEvent);
 
           if (!mapped || !mapped.externalId) {
-            console.warn("[IMPORT] Evento inválido, se omite");
+            logger.warn('[IMPORT] Evento inválido, se omite');
             continue;
           }
 
@@ -56,14 +57,14 @@ async function importEvents() {
           }
 
         } catch (eventError) {
-          console.error("[IMPORT] Error procesando evento:", eventError.message);
+          logger.error('[IMPORT] Error procesando evento', { error: eventError.message });
         }
       }
 
       start += rows;
     }
 
-    console.log(`[IMPORT] DONE -> imported: ${imported}, updated: ${updated}`);
+    logger.info('[IMPORT] DONE', { imported, updated });
 
     return {
       imported,
@@ -71,7 +72,7 @@ async function importEvents() {
     };
 
   } catch (err) {
-    console.error("[IMPORT] FATAL ERROR:", err.message);
+    logger.error('[IMPORT] FATAL ERROR', { error: err.message });
     throw err; // importante: que el controller lo capture
   }
 }

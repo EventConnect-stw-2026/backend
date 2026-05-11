@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
+const logger = require('../utils/logger');
 
 // Enviar solicitud de amistad
 async function sendFriendRequest(req, res) {
@@ -46,7 +47,7 @@ async function sendFriendRequest(req, res) {
       friendRequest
     });
   } catch (error) {
-    console.error('SEND FRIEND REQUEST ERROR:', error);
+    logger.error('SEND FRIEND REQUEST ERROR', { error });
     return res.status(500).json({ message: 'Error al enviar solicitud' });
   }
 }
@@ -84,7 +85,7 @@ async function acceptFriendRequest(req, res) {
       friendRequest
     });
   } catch (error) {
-    console.error('ACCEPT FRIEND REQUEST ERROR:', error);
+    logger.error('ACCEPT FRIEND REQUEST ERROR', { error });
     return res.status(500).json({ message: 'Error al aceptar solicitud' });
   }
 }
@@ -121,7 +122,7 @@ async function rejectFriendRequest(req, res) {
       message: 'Solicitud rechazada'
     });
   } catch (error) {
-    console.error('REJECT FRIEND REQUEST ERROR:', error);
+    logger.error('REJECT FRIEND REQUEST ERROR', { error });
     return res.status(500).json({ message: 'Error al rechazar solicitud' });
   }
 }
@@ -140,7 +141,7 @@ async function getPendingRequests(req, res) {
       pendingRequests
     });
   } catch (error) {
-    console.error('GET PENDING REQUESTS ERROR:', error);
+    logger.error('GET PENDING REQUESTS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener solicitudes' });
   }
 }
@@ -171,7 +172,7 @@ async function getFriends(req, res) {
       count: friends.length
     });
   } catch (error) {
-    console.error('GET FRIENDS ERROR:', error);
+    logger.error('GET FRIENDS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener amigos' });
   }
 }
@@ -205,7 +206,7 @@ async function removeFriend(req, res) {
       message: 'Amigo eliminado'
     });
   } catch (error) {
-    console.error('REMOVE FRIEND ERROR:', error);
+    logger.error('REMOVE FRIEND ERROR', { error });
     return res.status(500).json({ message: 'Error al eliminar amigo' });
   }
 }
@@ -300,7 +301,7 @@ async function getSuggestedFriends(req, res) {
       suggestedFriends: suggested
     });
   } catch (error) {
-    console.error('GET SUGGESTED FRIENDS ERROR:', error);
+    logger.error('GET SUGGESTED FRIENDS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener amigos sugeridos' });
   }
 }
@@ -314,10 +315,10 @@ async function getSearchableUsers(req, res) {
       'name username email avatarUrl bio location'
     );
 
-    console.log('REQ USER EN SEARCHABLE:', req.user);
+    logger.debug('REQ USER EN SEARCHABLE', { user: req.user });
     return res.status(200).json({ users });
   } catch (error) {
-    console.error('GET SEARCHABLE USERS ERROR:', error);
+    logger.error('GET SEARCHABLE USERS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener usuarios' });
   }
 }
@@ -346,7 +347,7 @@ async function getUsersBySearch(req, res) {
 
     return res.status(200).json({ users });
   } catch (error) {
-    console.error('SEARCH USERS ERROR:', error);
+    logger.error('SEARCH USERS ERROR', { error });
     return res.status(500).json({ message: 'Error al buscar usuarios' });
   }
 }
@@ -362,7 +363,7 @@ async function getSentRequests(req, res) {
 
     return res.status(200).json({ sentRequests });
   } catch (error) {
-    console.error('GET SENT REQUESTS ERROR:', error);
+    logger.error('GET SENT REQUESTS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener solicitudes enviadas' });
   }
 }

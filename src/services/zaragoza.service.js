@@ -1,4 +1,5 @@
 const axios = require("axios");
+const logger = require("../utils/logger");
 
 const BASE_URL = process.env.ZARAGOZA_API_URL;
 
@@ -19,7 +20,7 @@ async function getEvents(start = 0, rows = 10) {
     return res.data;
 
   } catch (err) {
-    console.error("[ZARAGOZA] Error getEvents:", err.message);
+    logger.error('[ZARAGOZA] Error getEvents', { error: err.message });
     throw err;
   }
 }
@@ -29,7 +30,7 @@ async function getEventById(id) {
     const res = await client.get(`/${id}`);
     return res.data;
   } catch (err) {
-    console.error("[ZARAGOZA] Error getEventById:", err.message);
+    logger.error('[ZARAGOZA] Error getEventById', { error: err.message });
     throw err;
   }
 }
@@ -39,7 +40,7 @@ async function getTodayEvents() {
     const res = await client.get("/hoy");
     return res.data;
   } catch (err) {
-    console.error("[ZARAGOZA] Error getTodayEvents:", err.message);
+    logger.error('[ZARAGOZA] Error getTodayEvents', { error: err.message });
     throw err;
   }
 }
@@ -53,7 +54,7 @@ async function searchEvents(text) {
     return res.data;
 
   } catch (err) {
-    console.error("[ZARAGOZA] Error searchEvents:", err.message);
+    logger.error('[ZARAGOZA] Error searchEvents', { error: err.message });
     throw err;
   }
 }

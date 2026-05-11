@@ -5,6 +5,7 @@ const Settings = require('../models/Settings');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const FriendRequest = require('../models/FriendRequest');
+const logger = require('../utils/logger');
 
 async function getDashboard(req, res) {
   try {
@@ -91,7 +92,7 @@ async function getDashboard(req, res) {
       }
     });
   } catch (error) {
-    console.error('Error en getDashboard:', error);
+    logger.error('Error en getDashboard', { error });
     return res.status(500).json({ message: 'Error al obtener dashboard de admin' });
   }
 }
@@ -241,7 +242,7 @@ async function updateEvent(req, res) {
       }
     });
   } catch (error) {
-    console.error('Error al actualizar evento:', error);
+    logger.error('Error al actualizar evento', { error });
     return res.status(500).json({ message: 'Error al actualizar evento' });
   }
 }

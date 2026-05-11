@@ -3,6 +3,7 @@ const Meetup = require('../models/Meetup');
 const Event = require('../models/Event');
 const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
+const logger = require('../utils/logger');
 
 function isValidObjectId(id) {
   return mongoose.Types.ObjectId.isValid(id);
@@ -94,7 +95,7 @@ async function createMeetup(req, res) {
       meetup: populatedMeetup
     });
   } catch (error) {
-    console.error('CREATE MEETUP ERROR:', error);
+    logger.error('CREATE MEETUP ERROR', { error });
     return res.status(500).json({ message: 'Error al crear la quedada' });
   }
 }
@@ -115,7 +116,7 @@ async function getOrganizedMeetups(req, res) {
       meetups
     });
   } catch (error) {
-    console.error('GET ORGANIZED MEETUPS ERROR:', error);
+    logger.error('GET ORGANIZED MEETUPS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener tus quedadas organizadas' });
   }
 }
@@ -136,7 +137,7 @@ async function getInvitedMeetups(req, res) {
       meetups
     });
   } catch (error) {
-    console.error('GET INVITED MEETUPS ERROR:', error);
+    logger.error('GET INVITED MEETUPS ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener las quedadas a las que te han invitado' });
   }
 }
@@ -184,7 +185,7 @@ async function respondToMeetup(req, res) {
       meetup: populatedMeetup
     });
   } catch (error) {
-    console.error('RESPOND TO MEETUP ERROR:', error);
+    logger.error('RESPOND TO MEETUP ERROR', { error });
     return res.status(500).json({ message: 'Error al responder a la quedada' });
   }
 }
@@ -215,7 +216,7 @@ async function cancelMeetup(req, res) {
       message: 'Quedada cancelada correctamente'
     });
   } catch (error) {
-    console.error('CANCEL MEETUP ERROR:', error);
+    logger.error('CANCEL MEETUP ERROR', { error });
     return res.status(500).json({ message: 'Error al cancelar la quedada' });
   }
 }
@@ -243,7 +244,7 @@ async function getPendingMeetupInvitationsCount(req, res) {
       hasPendingMeetupInvitations: pendingInvitationsCount > 0
     });
   } catch (error) {
-    console.error('GET PENDING MEETUP INVITATIONS COUNT ERROR:', error);
+    logger.error('GET PENDING MEETUP INVITATIONS COUNT ERROR', { error });
     return res.status(500).json({ message: 'Error al obtener invitaciones pendientes de quedadas' });
   }
 }
