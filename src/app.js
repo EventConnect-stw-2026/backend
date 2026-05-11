@@ -33,7 +33,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:3001',
+      url: process.env.SERVER_URL || `http://localhost:${process.env.PORT || 3001}`,
       description: 'Servidor local',
     },
   ],
@@ -52,9 +52,8 @@ app.use(helmet());
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'http://localhost:4200',
-  'http://127.0.0.1:4200'
-];
+  process.env.FRONTEND_URL_ALT,
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {

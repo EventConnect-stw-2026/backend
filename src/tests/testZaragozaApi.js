@@ -3,7 +3,7 @@
  */
 const axios = require("axios");
 
-const BASE = "https://www.zaragoza.es/sede";
+const BASE = process.env.ZARAGOZA_BASE_URL;
 
 async function testToday() {
 

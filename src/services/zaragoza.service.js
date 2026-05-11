@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const BASE_URL = "https://www.zaragoza.es/sede/servicio/cultura/evento";
+const BASE_URL = process.env.ZARAGOZA_API_URL;
 
 const client = axios.create({
   baseURL: BASE_URL,
