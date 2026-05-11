@@ -18,6 +18,16 @@ const {
 
 const cookieParser = require('cookie-parser');
 const requireAuth = require('../middlewares/auth.middleware');
+const validateRequest = require('../middlewares/validateRequest');
+const { body } = require('express-validator');
+
+const resetPasswordValidator = [
+  body('password')
+    .notEmpty().withMessage('La contraseña es obligatoria')
+    .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+  body('token')
+    .notEmpty().withMessage('El token es obligatorio')
+];
 
 /**
  * @swagger
@@ -100,6 +110,7 @@ router.post("/refresh", refreshToken);
  * /api/auth/logout:
  *   post:
  *     summary: Cerrar sesión
+ *     description: Elimina las cookies de sesión del usuario. No requiere autenticación.
  *     tags: [Autenticación]
  *     responses:
  *       200:
@@ -151,9 +162,8 @@ router.post("/forgot-password", requestPasswordReset);
  *       400:
  *         description: Token inválido o expirado
  */
-router.post("/reset-password", resetPassword);
+router.post("/reset-password", resetPasswordValidator, validateRequest, resetPassword);
 
-const validateRequest = require("../middlewares/validateRequest");
 
 const {
   registerValidator,
@@ -257,66 +267,117 @@ router.post("/google", loginWithGoogle);
  *   schemas:
  *     User:
  *       type: object
+ *       description: Datos del usuario autenticado (perfil propio)
  *       properties:
  *         _id:
  *           type: string
  *         name:
  *           type: string
+ *           example: Juan Pérez
+ *         username:
+ *           type: string
+ *           example: juanperez
  *         email:
  *           type: string
+ *           example: juan@example.com
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *           example: user
+ *         avatarUrl:
+ *           type: string
+ *           example: "https://example.com/avatar.jpg"
+ *         bio:
+ *           type: string
+ *           example: "Amante de los eventos culturales"
+ *         location:
+ *           type: string
+ *           example: "Zaragoza"
+ *         interests:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["sports", "culture", "gastronomy"]
+ *         isBlocked:
+ *           type: boolean
+ *           example: false
+ *         attendedEvents:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: IDs de eventos a los que ha asistido
  *         createdAt:
  *           type: string
  *           format: date-time
  *         updatedAt:
  *           type: string
  *           format: date-time
- *       example:
- *         _id: "624b1f4e8f1b2c001c8e4e1b"
- *         name: "Juan Pérez"
- *         email: "juan@example.com"
- *         createdAt: "2024-04-01T10:00:00Z"
- *         updatedAt: "2024-04-01T10:00:00Z"
  *     UserRegister:
  *       type: object
- *       properties:
- *         name:
- *           type: string
- *         email:
- *           type: string
- *         password:
- *           type: string
  *       required:
  *         - name
+ *         - username
  *         - email
  *         - password
- *       example:
- *         name: "Juan Pérez"
- *         email: "juan@example.com"
- *         password: "123456"
- *     UserLogin:
- *       type: object
- *       properties:
- *         email:
- *           type: string
- *         password:
- *           type: string
- *       required:
- *         - email
- *         - password
- *       example:
-
- *         email: "juan@example.com"
- *         password: "123456"
- *     UserUpdate:
- *       type: object
  *       properties:
  *         name:
  *           type: string
+ *           minLength: 2
+ *           maxLength: 100
+ *           example: Juan Pérez
+ *         username:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 30
+ *           example: juanperez
  *         email:
  *           type: string
- *       example:
- *         name: "Juan Pérez"
- *         email: "juan@example.com"
+ *           format: email
+ *           example: juan@example.com
+ *         password:
+ *           type: string
+ *           minLength: 6
+ *           example: "micontraseña123"
+ *     UserLogin:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: juan@example.com
+ *         password:
+ *           type: string
+ *           example: "micontraseña123"
+ *     UserUpdate:
+ *       type: object
+ *       description: Campos actualizables del perfil. Todos son opcionales.
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: Juan Pérez
+ *         username:
+ *           type: string
+ *           example: juanperez
+ *         avatarUrl:
+ *           type: string
+ *           example: "https://example.com/avatar.jpg"
+ *         interests:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["sports", "culture"]
+ *         passwordChange:
+ *           type: object
+ *           description: Incluir solo si se quiere cambiar la contraseña
+ *           properties:
+ *             currentPassword:
+ *               type: string
+ *             newPassword:
+ *               type: string
+ *               minLength: 6
  */
 
 /**
