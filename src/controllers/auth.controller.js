@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: auth.controller.js
+ * Descripción: Controlador para autenticación, gestión de perfiles y recomendaciones personalizadas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/email');
 const logger = require('../utils/logger');
@@ -98,6 +104,7 @@ const User = require('../models/User');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// Funciones auxiliares para generar tokens JWT
 function generateToken(user, expiresIn = '15m') {
   return jwt.sign(
     {
@@ -110,6 +117,7 @@ function generateToken(user, expiresIn = '15m') {
   );
 }
 
+// Genera un refresh token con una expiración más larga (7 días)
 function generateRefreshToken(user) {
   return jwt.sign(
     {
@@ -122,6 +130,7 @@ function generateRefreshToken(user) {
   );
 }
 
+// Endpoint para registrar un nuevo usuario con email y contraseña
 async function register(req, res, next) {
   try {
     const { name, username, email, password } = req.body;
@@ -182,14 +191,15 @@ async function register(req, res, next) {
   }
 }
 
+// Endpoint para iniciar sesión con email y contraseña
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({
-        message: 'Este correo no está registrado. Por favor, regístrate primero'
+      return res.status(200).json({
+        message: 'Correo o contraseña inválidos'
       });
     }
 
@@ -201,8 +211,8 @@ async function login(req, res, next) {
 
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
     if (!isValidPassword) {
-      return res.status(401).json({
-        message: 'Contraseña incorrecta'
+      return res.status(200).json({
+        message: 'Correo o contraseña inválidos'
       });
     }
 
@@ -245,6 +255,7 @@ async function login(req, res, next) {
   }
 }
 
+// Endpoint para iniciar sesión o registrarse con Google (token de Google ID)
 async function loginWithGoogle(req, res, next) {
   try {
     const { token, isRegistering } = req.body;
@@ -279,9 +290,9 @@ async function loginWithGoogle(req, res, next) {
       });
     }
 
-    // Si no existe y es LOGIN, error
+    // Si no existe y es LOGIN, error controlado
     if (!user && !isRegistering) {
-      return res.status(401).json({ 
+      return res.status(200).json({ 
         message: 'Esta cuenta no existe. Por favor, regístrate primero' 
       });
     }
