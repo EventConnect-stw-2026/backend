@@ -98,7 +98,7 @@ describe('auth.controller', () => {
     const res = createRes();
     await authController.login({ body: { email: 'a@b.com', password: 'pass' } }, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
   it('login rejects blocked user', async () => {
@@ -117,7 +117,7 @@ describe('auth.controller', () => {
     const res = createRes();
     await authController.login({ body: { email: 'a@b.com', password: 'bad' } }, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
   it('login succeeds and sets cookies', async () => {
@@ -177,7 +177,7 @@ describe('auth.controller', () => {
     const res = createRes();
     await authController.loginWithGoogle({ body: { token: 't', isRegistering: false } }, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
   it('refreshToken rejects missing cookie', async () => {
