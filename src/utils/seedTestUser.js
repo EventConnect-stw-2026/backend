@@ -1,5 +1,9 @@
-// Crea el usuario de prueba para los tests E2E de Playwright
-// Ejecuta: node src/utils/seedTestUser.js
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: seedTestUser.js
+ * Descripción: Script para poblar la base de datos con un usuario de prueba.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -10,6 +14,7 @@ const TEST_EMAIL    = process.env.TEST_EMAIL    || 'test-e2e@eventconnect.com';
 const TEST_PASSWORD = process.env.TEST_PASSWORD || 'Test1234!';
 const TEST_USERNAME = process.env.TEST_USERNAME || 'test_e2e';
 
+// Script para crear un usuario de prueba en la base de datos, con manejo de errores para evitar duplicados y asegurar que el proceso se completa correctamente
 async function seed() {
   try {
     await mongoose.connect(process.env.MONGODB_URI_LOCAL || process.env.MONGODB_URI);

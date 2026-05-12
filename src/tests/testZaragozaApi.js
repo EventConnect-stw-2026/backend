@@ -1,10 +1,15 @@
 /**
- * TEST para comprobar que la API no está caída
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: testZaragozaApi.js
+ * Descripción: Script para probar la conexión y respuesta de la API de Zaragoza, verificando los endpoints principales.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
  */
+
 const axios = require("axios");
 
 const BASE = process.env.ZARAGOZA_BASE_URL;
 
+// Prueba de conexión a la API de Zaragoza y verificación de endpoints principales
 async function testToday() {
 
   console.log("\nTEST eventos de hoy");
@@ -22,6 +27,7 @@ async function testToday() {
 
 }
 
+// Prueba del endpoint de listado de eventos, verificando paginación y estructura de respuesta
 async function testList() {
 
   console.log("\nTEST listado eventos");
@@ -40,6 +46,7 @@ async function testList() {
 
 }
 
+// Prueba del endpoint de detalle de evento, verificando que se obtiene la información correcta para un ID específico
 async function testDetail() {
 
   console.log("\nTEST detalle evento");
@@ -57,6 +64,7 @@ async function testDetail() {
 
 }
 
+// Ejecución secuencial de las pruebas, con manejo de errores para identificar posibles problemas de conexión o formato de respuesta
 async function run() {
 
   try {

@@ -1,3 +1,8 @@
+Aplicación: EventConnect - Plataforma de gestión de eventos
+Archivo: DAPI.md
+Descripción: 
+Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+
 # API de EventConnect (backend-stw)
 
 Este documento describe la API RESTful del backend de EventConnect, una plataforma para la gestión de eventos, usuarios, chats y amigos.

@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: Settings.js
+ * Descripción: Modelo para representar la configuración de la aplicación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const mongoose = require('mongoose');
 
 const settingsSchema = new mongoose.Schema(

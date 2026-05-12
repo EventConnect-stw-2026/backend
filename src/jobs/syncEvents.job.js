@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: syncEvents.job.js
+ * Descripción: Tarea programada para sincronizar eventos de Zaragoza cada 6 horas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const cron = require("node-cron");
 
 const importEvents = require("../services/importEvents.service");
@@ -5,6 +11,7 @@ const updateExpiredEvents = require("../services/eventStatus.service");
 const deleteOldEvents = require("../services/deleteOldEvents.service");
 const logger = require("../utils/logger");
 
+// Función para ejecutar la sincronización de eventos con Zaragoza
 async function runSync() {
 
   logger.info('Starting Zaragoza sync');
@@ -24,6 +31,7 @@ async function runSync() {
 
 }
 
+// Función para programar la tarea de sincronización cada 6 horas
 function startEventSync() {
 
   cron.schedule("0 */6 * * *", async () => {

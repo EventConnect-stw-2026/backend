@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: stats.routes.js
+ * Descripción: Rutas para la gestión de estadísticas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const express = require("express");
 const router = express.Router();
 const { 

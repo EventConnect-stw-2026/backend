@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: meetup.controller.js
+ * Descripción: Controlador para gestionar quedadas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const mongoose = require('mongoose');
 const Meetup = require('../models/Meetup');
 const Event = require('../models/Event');
@@ -5,10 +11,12 @@ const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
 const logger = require('../utils/logger');
 
+// Función para validar si un ID es un ObjectId válido
 function isValidObjectId(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
+// Función para comprobar si dos usuarios son amigos aceptados
 async function areAcceptedFriends(userId, otherUserId) {
   return FriendRequest.findOne({
     $or: [
@@ -18,6 +26,7 @@ async function areAcceptedFriends(userId, otherUserId) {
   });
 }
 
+// Función para crear una nueva quedada
 async function createMeetup(req, res) {
   try {
     const organizerId = req.user?.sub;
@@ -100,6 +109,7 @@ async function createMeetup(req, res) {
   }
 }
 
+// Función para obtener las quedadas organizadas por el usuario
 async function getOrganizedMeetups(req, res) {
   try {
     const userId = req.user?.sub;
@@ -121,6 +131,7 @@ async function getOrganizedMeetups(req, res) {
   }
 }
 
+// Función para obtener las quedadas a las que el usuario ha sido invitado
 async function getInvitedMeetups(req, res) {
   try {
     const userId = req.user?.sub;
@@ -142,6 +153,7 @@ async function getInvitedMeetups(req, res) {
   }
 }
 
+// Función para responder a una invitación de quedada (aceptar o rechazar)
 async function respondToMeetup(req, res) {
   try {
     const userId = req.user?.sub;
@@ -190,6 +202,7 @@ async function respondToMeetup(req, res) {
   }
 }
 
+// Función para cancelar una quedada (solo el organizador puede hacerlo)
 async function cancelMeetup(req, res) {
   try {
     const userId = req.user?.sub;
@@ -221,6 +234,7 @@ async function cancelMeetup(req, res) {
   }
 }
 
+// Función para obtener el número de invitaciones pendientes de quedadas para el usuario
 async function getPendingMeetupInvitationsCount(req, res) {
   try {
     const userId = req.user?.sub;

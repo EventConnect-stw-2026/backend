@@ -1,3 +1,12 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: errorHandler.js
+ * Descripción: Middleware para manejar errores en la aplicación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
+// Middleware para manejar errores en la aplicación
+
 const logger = require('../utils/logger');
 
 const errorHandler = (err, req, res, next) => {

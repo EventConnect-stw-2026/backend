@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: event-chat.controller.test.js
+ * Descripción: Pruebas para el controlador de chat de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const EventMessage = require('../../models/EventMessage');
 const User = require('../../models/User');
 const FriendRequest = require('../../models/FriendRequest');

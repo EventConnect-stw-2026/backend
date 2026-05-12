@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: auth.validators.js
+ * Descripción: Validadores para las rutas de autenticación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const { body } = require("express-validator");
 
 const registerValidator = [

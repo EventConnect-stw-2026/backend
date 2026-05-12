@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: admin.routes.js
+ * Descripción: Rutas para la administración de la aplicación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const express = require('express');
 const cookieParser = require('cookie-parser');
 

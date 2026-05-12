@@ -1,8 +1,15 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: eventMapper.js
+ * Descripción: Mapeo de datos de eventos de Zaragoza a formato estándar.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const proj4 = require('proj4');
 
 // Sistema de coordenadas UTM zona 30N (EPSG:25830) que usa Zaragoza
 proj4.defs('EPSG:25830', '+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs');
 
+// Función para convertir coordenadas UTM a latitud/longitud
 function convertCoords(x, y) {
   if (!x || !y) return { lat: null, lng: null };
   try {
@@ -17,6 +24,7 @@ function convertCoords(x, y) {
   }
 }
 
+// Función para mapear un evento de Zaragoza al formato estándar de EventConnect
 function mapZaragozaEvent(event) {
   const sub = event.subEvent?.[0] || {};
   const rawCoords = event.geometry?.coordinates || [];

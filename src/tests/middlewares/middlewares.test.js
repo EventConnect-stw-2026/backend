@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: middlewares.test.js
+ * Descripción: Pruebas para los middlewares de autenticación y autorización.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 

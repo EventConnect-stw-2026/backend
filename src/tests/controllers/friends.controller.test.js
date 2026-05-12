@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: friends.controller.test.js
+ * Descripción: Pruebas para el controlador de amigos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const User = require('../../models/User');
 const FriendRequest = require('../../models/FriendRequest');
 

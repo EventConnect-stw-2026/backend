@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: chat.controller.js
+ * Descripción: Controlador para gestionar conversaciones y mensajes.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
@@ -5,14 +11,18 @@ const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const logger = require('../utils/logger');
 
+// Funciones auxiliares
+// Verifica si un ID es un ObjectId válido
 function isValidObjectId(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
 
+// Construye una clave única para la combinación de dos usuarios (independientemente del orden)
 function buildParticipantsKey(userId1, userId2) {
   return [userId1.toString(), userId2.toString()].sort().join(':');
 }
 
+// Verifica si dos usuarios son amigos aceptados
 async function areAcceptedFriends(userId, otherUserId) {
   return FriendRequest.findOne({
     $or: [
@@ -22,6 +32,7 @@ async function areAcceptedFriends(userId, otherUserId) {
   });
 }
 
+// Obtiene el otro participante de la conversación (asumiendo que es una conversación privada entre dos usuarios)
 function getOtherParticipant(conversation, currentUserId) {
   return conversation.participants.find(
     (p) => p._id.toString() !== currentUserId.toString()
@@ -311,6 +322,7 @@ async function markConversationAsRead(req, res) {
   }
 }
 
+// Obtener conteo de mensajes no leídos por cada amigo
 async function getUnreadCountsByFriend(req, res) {
   try {
     const userId = req.user?.sub;

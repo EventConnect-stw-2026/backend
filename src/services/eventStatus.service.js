@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: eventStatus.service.js
+ * Descripción: Servicio para actualizar el estado de los eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const Event = require("../models/Event");
 
 async function updateExpiredEvents() {

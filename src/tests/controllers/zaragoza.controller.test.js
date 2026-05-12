@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: zaragoza.controller.test.js
+ * Descripción: Pruebas para el controlador de Zaragoza.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Zaragoza = require('../../services/zaragoza.service');
 const importEvents = require('../../services/importEvents.service');
 const { runSync } = require('../../jobs/syncEvents.job');

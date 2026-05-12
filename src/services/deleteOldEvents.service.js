@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: deleteOldEvents.service.js
+ * Descripción: Servicio para eliminar eventos antiguos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const Event = require("../models/Event");
 
 async function deleteOldEvents() {

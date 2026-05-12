@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: blockRoutes.middleware.js
+ * Descripción: Middleware para bloquear rutas según el estado de sesión.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 // Middleware para bloquear rutas según el estado de sesión (JavaScript puro)
 function blockRoutesForAuthenticated(allowedForUnauthenticated = []) {
   return function (req, res, next) {

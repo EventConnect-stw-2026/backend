@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: Message.js
+ * Descripción: Modelo para representar un mensaje en una conversación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema(

@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: utils.test.js
+ * Descripción: Pruebas para las funciones utilitarias.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const nodemailer = require('nodemailer');
 const mapZaragozaEvent = require('../../models/eventMapper');
 

@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: User.js
+ * Descripción: Modelo para representar un usuario de la aplicación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(

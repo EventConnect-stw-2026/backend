@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: stats.controller.test.js
+ * Descripción: Pruebas para el controlador de estadísticas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const User = require('../../models/User');
 const Event = require('../../models/Event');
 

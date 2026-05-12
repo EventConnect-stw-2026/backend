@@ -1,7 +1,14 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: zaragoza.controller.js
+ * Descripción: Controlador para gestionar eventos de Zaragoza.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Zaragoza = require("../services/zaragoza.service");
 const importEvents = require("../services/importEvents.service");
 const { runSync } = require("../jobs/syncEvents.job");
 
+// Función para obtener eventos de Zaragoza con diferentes filtros
 const getEvents = async (req, res, next) => {
   try {
     const { start = 0, rows = 10, today, search, id } = req.query;
@@ -23,6 +30,7 @@ const getEvents = async (req, res, next) => {
   }
 };
 
+// Función para importar eventos de Zaragoza a nuestra base de datos
 const importFromZaragoza = async (req, res, next) => {
   try {
     const result = await importEvents();
@@ -32,6 +40,7 @@ const importFromZaragoza = async (req, res, next) => {
   }
 };
 
+// Función para ejecutar manualmente la sincronización de eventos con Zaragoza
 const manualSync = async (req, res, next) => {
   try {
     await runSync();

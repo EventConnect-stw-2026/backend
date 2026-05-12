@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: report.controller.js
+ * Descripción: Controlador para gestionar reportes.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Report = require('../models/Report');
 const EventMessage = require('../models/EventMessage');
 const Event = require('../models/Event');

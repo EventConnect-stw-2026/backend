@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: ai.controller.test.js
+ * Descripción: Pruebas para el controlador de inteligencia artificial.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Event = require('../../models/Event');
 const generateSummary = require('../../services/aiSummary.service');
 

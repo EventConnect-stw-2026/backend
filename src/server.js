@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: server.js
+ * Descripción: Punto de entrada del servidor Express, encargado de conectar a la base de datos, iniciar el servidor y programar tareas periódicas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 require("dotenv").config();
 
 const app = require("./app");

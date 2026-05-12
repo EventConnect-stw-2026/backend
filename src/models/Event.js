@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: Event.js
+ * Descripción: Modelo para representar un evento.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const mongoose = require("mongoose");
 
 const eventSchema = new mongoose.Schema(
