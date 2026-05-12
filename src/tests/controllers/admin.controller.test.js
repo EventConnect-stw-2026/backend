@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: admin.controller.test.js
+ * Descripción: Pruebas para el controlador de administración.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 jest.mock('../../models/User', () => {
   const model = jest.fn();
   model.find = jest.fn();

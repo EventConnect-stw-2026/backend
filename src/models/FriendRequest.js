@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: FriendRequest.js
+ * Descripción: Modelo para representar una solicitud de amistad.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const mongoose = require('mongoose');
 
 const friendRequestSchema = new mongoose.Schema(

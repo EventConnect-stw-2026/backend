@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: friends.controller.js
+ * Descripción: Controlador para gestionar solicitudes de amistad.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const User = require('../models/User');
 const FriendRequest = require('../models/FriendRequest');
 const logger = require('../utils/logger');

@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: zaragoza.service.js
+ * Descripción: Servicio para interactuar con la API de Zaragoza.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const axios = require("axios");
 const logger = require("../utils/logger");
 
@@ -8,7 +14,7 @@ const client = axios.create({
   headers: {
     Accept: "application/json"
   },
-  //timeout: 10000 // ⏱ evita cuelgues infinitos
+  //timeout: 10000 // evita cuelgues infinitos
 });
 
 async function getEvents(start = 0, rows = 10) {

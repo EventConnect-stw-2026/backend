@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: importEvents.service.js
+ * Descripción: Servicio para importar eventos desde una fuente externa.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const Event = require("../models/Event");
 const Zaragoza = require("./zaragoza.service");
 const mapEvent = require("../models/eventMapper");

@@ -1,7 +1,14 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: event.controller.js
+ * Descripción: Controlador para gestionar eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Event = require("../models/Event");
 const User = require("../models/User");
 const logger = require("../utils/logger");
 
+// GET /api/events
 const getAllEvents = async (req, res, next) => {
   try {
     const {
@@ -51,6 +58,8 @@ const getAllEvents = async (req, res, next) => {
   }
 };
 
+// GET /api/events/:id
+// Función para obtener un evento por su ID
 const getEventById = async (req, res, next) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -71,6 +80,7 @@ const getEventById = async (req, res, next) => {
   }
 };
 
+// Función para crear un nuevo evento
 const createEvent = async (req, res, next) => {
   try {
     const existingEvent = await Event.findOne({ externalId: req.body.externalId });
@@ -94,6 +104,7 @@ const createEvent = async (req, res, next) => {
   }
 };
 
+// Función para actualizar un evento existente
 const updateEvent = async (req, res, next) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
@@ -118,6 +129,7 @@ const updateEvent = async (req, res, next) => {
   }
 };
 
+// Función para eliminar un evento
 const deleteEvent = async (req, res, next) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
@@ -138,6 +150,7 @@ const deleteEvent = async (req, res, next) => {
   }
 };
 
+// Función para apuntarse o desapuntarse de un evento
 const toggleAttendance = async (req, res, next) => {
   try {
     logger.debug('toggleAttendance - token user', { user: req.user });
@@ -163,7 +176,7 @@ const toggleAttendance = async (req, res, next) => {
   }
 };
 
-
+// Función para obtener eventos destacados, próximos, esta semana y recientes
 const getEventSections = async (req, res, next) => {
   try {
     const now = new Date();

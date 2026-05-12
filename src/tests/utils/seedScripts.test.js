@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: seedScripts.test.js
+ * Descripción: Pruebas para los scripts de sembrado de datos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const mongoose = require('mongoose');
 const Report = require('../../models/Report');
 const User = require('../../models/User');

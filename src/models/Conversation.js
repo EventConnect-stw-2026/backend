@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: Conversation.js
+ * Descripción: Modelo para representar una conversación entre usuarios.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const mongoose = require('mongoose');
 
 const conversationSchema = new mongoose.Schema(

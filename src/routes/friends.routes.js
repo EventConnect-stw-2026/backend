@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: friends.routes.js
+ * Descripción: Rutas para la gestión de amigos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const express = require('express');
 const router = express.Router();
 const requireAuth = require('../middlewares/auth.middleware');

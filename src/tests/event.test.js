@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: event.test.js
+ * Descripción: Pruebas para el controlador de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 require("dotenv").config();
 const request = require("supertest");
 const mongoose = require("mongoose");

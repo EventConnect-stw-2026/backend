@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: services.test.js
+ * Descripción: Pruebas para los servicios de gestión de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Event = require('../../models/Event');
 const Zaragoza = require('../../services/zaragoza.service');
 const mapEvent = require('../../models/eventMapper');

@@ -1,4 +1,33 @@
 {
+  "_header": {
+    "aplicacion": "EventConnect - Plataforma de gestión de eventos",
+    "archivo": "package.json",
+    "descripcion": "Metadatos y dependencias para el backend de EventConnect.",
+    "autor": "Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel"
+  },
+  "_documentation": {
+    "purpose": "Archivo de metadatos para el backend. Contiene metadatos del proyecto, scripts de desarrollo/prueba/arranque y dependencias necesarias.",
+    "fields": {
+      "name": "Nombre del paquete (identificador del proyecto).",
+      "version": "Versión semántica del paquete.",
+      "description": "Descripción corta del backend.",
+      "main": "Punto de entrada para node (usado por 'npm start').",
+      "scripts": "Comandos habituales usados durante desarrollo, pruebas y despliegue.",
+      "dependencies": "Dependencias necesarias en tiempo de ejecución para la API.",
+      "devDependencies": "Dependencias usadas solo en desarrollo (tests, nodemon, etc.)."
+    },
+    "scripts": {
+      "dev": "Arranca el servidor en modo desarrollo con nodemon (recarga automática).",
+      "start": "Arranca el servidor en modo producción con node.",
+      "test": "Ejecuta la suite de pruebas con Jest (entorno Node)."
+    },
+    "usage": {
+      "run_dev": "npm run dev",
+      "run_start": "npm start",
+      "run_tests": "npm test"
+    },
+    "notes": "No incluya comentarios en JSON; este objeto _documentation contiene la documentación humana legible. Para la documentación de desarrollo más larga use archivos README.md si es necesario."
+  },
   "name": "backend-stw",
   "version": "1.0.0",
   "description": "Backend API REST para EventConnect",

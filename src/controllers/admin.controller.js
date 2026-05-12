@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: admin.controller.js
+ * Descripción: Controlador para funcionalidades administrativas como gestión de usuarios, eventos, reportes y configuración del sistema.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const User = require('../models/User');
 const Event = require('../models/Event');
 const Report = require('../models/Report');
@@ -7,6 +13,7 @@ const Message = require('../models/Message');
 const FriendRequest = require('../models/FriendRequest');
 const logger = require('../utils/logger');
 
+// Función para obtener estadísticas y datos para el dashboard de admin
 async function getDashboard(req, res) {
   try {
     const [totalUsers, activeEvents, blockedUsers, totalEvents] = await Promise.all([
@@ -97,6 +104,7 @@ async function getDashboard(req, res) {
   }
 }
 
+// Función para obtener lista de usuarios para el panel de admin
 async function getUsers(req, res) {
   try {
     const users = await User.find()
@@ -118,6 +126,7 @@ async function getUsers(req, res) {
   }
 }
 
+// Función para obtener lista de eventos para el panel de admin
 async function getEvents(req, res) {
   try {
     const events = await Event.find()
@@ -140,6 +149,7 @@ async function getEvents(req, res) {
   }
 }
 
+// Función para obtener detalles de un evento específico para el panel de admin
 async function getEventDetail(req, res) {
   try {
     const { id } = req.params;
@@ -172,6 +182,7 @@ async function getEventDetail(req, res) {
   }
 }
 
+// Función para crear un nuevo evento desde el panel de admin
 async function createEvent(req, res) {
   try {
     const { title, description, category, startDate, endDate, location, status, isFree } = req.body;
@@ -208,6 +219,7 @@ async function createEvent(req, res) {
   }
 }
 
+// Función para actualizar un evento existente desde el panel de admin
 async function updateEvent(req, res) {
   try {
     const { id } = req.params;
@@ -247,6 +259,7 @@ async function updateEvent(req, res) {
   }
 }
 
+// Función para eliminar un evento desde el panel de admin
 async function deleteEvent(req, res) {
   try {
     const { id } = req.params;
@@ -264,6 +277,7 @@ async function deleteEvent(req, res) {
   }
 }
 
+// Función para obtener resumen de reportes para el panel de admin
 async function getReportsSummary(req, res) {
   try {
     const [totalReports, userReports, contentReports, eventReports] = await Promise.all([
@@ -286,6 +300,7 @@ async function getReportsSummary(req, res) {
   }
 }
 
+// Función para obtener lista de reportes con filtros para el panel de admin
 async function getReports(req, res) {
   try {
     const { category } = req.query;
@@ -320,6 +335,7 @@ async function getReports(req, res) {
   }
 }
 
+// Funciones auxiliares para mapear tipos y razones de reportes a textos legibles
 function mapReportType(type) {
   const typeMap = {
     'comment': 'Comentario inapropiado',
@@ -330,6 +346,7 @@ function mapReportType(type) {
   return typeMap[type] || type;
 }
 
+// Función para mapear razones de reportes a textos legibles
 function mapReportReason(reason) {
   const reasonMap = {
     'spam': 'Spam',
@@ -341,6 +358,7 @@ function mapReportReason(reason) {
   return reasonMap[reason] || reason;
 }
 
+// Función para obtener detalles de un reporte específico para el panel de admin
 async function getReportDetail(req, res) {
   try {
     const { id } = req.params;
@@ -382,6 +400,7 @@ async function getReportDetail(req, res) {
   }
 }
 
+// Función para resolver un reporte desde el panel de admin (marcar como resuelto y opcionalmente banear al usuario involucrado)
 async function resolveReport(req, res) {
   try {
     const { id } = req.params;
@@ -418,6 +437,7 @@ async function resolveReport(req, res) {
   }
 }
 
+// Función para rechazar un reporte desde el panel de admin (marcar como rechazado)
 async function rejectReport(req, res) {
   try {
     const { id } = req.params;
@@ -449,6 +469,7 @@ async function rejectReport(req, res) {
   }
 }
 
+// Función para marcar un reporte como "bajo revisión" desde el panel de admin
 async function markReportUnderReview(req, res) {
   try {
     const { id } = req.params;
@@ -470,6 +491,7 @@ async function markReportUnderReview(req, res) {
   }
 }
 
+// Función para obtener configuración del sistema para el panel de admin
 async function getSettings(req, res) {
   try {
     let settings = await Settings.findOne();
@@ -498,6 +520,7 @@ async function getSettings(req, res) {
   }
 }
 
+// Función para actualizar configuración general del sistema desde el panel de admin
 async function updateGeneralSettings(req, res) {
   try {
     const { appName, description, contactEmail, contactPhone, timezone, defaultLanguage } = req.body;
@@ -532,6 +555,7 @@ async function updateGeneralSettings(req, res) {
   }
 }
 
+// Función para actualizar configuración de moderación del sistema desde el panel de admin
 async function updateModerationSettings(req, res) {
   try {
     const { requireEventApproval, autoDetectWords, autoBanAfterReports, notifyModeratorsOnReports, bannedWords } = req.body;
@@ -563,6 +587,7 @@ async function updateModerationSettings(req, res) {
   }
 }
 
+// Función para actualizar configuración de notificaciones del sistema desde el panel de admin
 async function updateNotificationSettings(req, res) {
   try {
     const { notifyReportedUsers, notifyFlaggedContent, weeklySummary, systemAlerts } = req.body;
@@ -588,6 +613,7 @@ async function updateNotificationSettings(req, res) {
   }
 }
 
+// Función para obtener estado del sistema para el panel de admin (simulación de carga, última actualización, etc.)
 async function getSystemStatus(req, res) {
   try {
     let settings = await Settings.findOne();
@@ -614,6 +640,7 @@ async function getSystemStatus(req, res) {
   }
 }
 
+// Función para limpiar caché del sistema desde el panel de admin (simulación, en producción sería con Redis u otro sistema de caché)
 async function clearCache(req, res) {
   try {
     // Simulamos limpiar caché - en producción sería con Redis
@@ -623,6 +650,7 @@ async function clearCache(req, res) {
   }
 }
 
+// Función para optimizar base de datos desde el panel de admin (simulación, en producción sería con comandos específicos de MongoDB)
 async function optimizeDatabase(req, res) {
   try {
     let settings = await Settings.findOne();
@@ -642,6 +670,7 @@ async function optimizeDatabase(req, res) {
   }
 }
 
+// Función para descargar respaldo de datos desde el panel de admin (simulación, en producción sería con generación de archivos y almacenamiento en S3 o similar)
 async function downloadBackup(req, res) {
   try {
     // Simulamos descarga de respaldo
@@ -655,6 +684,7 @@ async function downloadBackup(req, res) {
   }
 }
 
+// Función para obtener detalles de un usuario específico para el panel de admin
 async function getUserDetail(req, res) {
   try {
     const { id } = req.params;
@@ -684,6 +714,7 @@ async function getUserDetail(req, res) {
   }
 }
 
+// Función para bloquear a un usuario desde el panel de admin (no permite bloquear a otros admins)
 async function blockUser(req, res) {
   try {
     const { id } = req.params;
@@ -715,6 +746,7 @@ async function blockUser(req, res) {
   }
 }
 
+// Función para desbloquear a un usuario desde el panel de admin
 async function unblockUser(req, res) {
   try {
     const { id } = req.params;
@@ -741,6 +773,7 @@ async function unblockUser(req, res) {
   }
 }
 
+// Función para eliminar a un usuario desde el panel de admin (no permite eliminar a otros admins y elimina referencias en otras colecciones)
 async function deleteUser(req, res) {
   try {
     const { id } = req.params;

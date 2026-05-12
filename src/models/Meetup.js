@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: Meetup.js
+ * Descripción: Modelo para representar una quedada.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const mongoose = require('mongoose');
 
 const meetupParticipantSchema = new mongoose.Schema(

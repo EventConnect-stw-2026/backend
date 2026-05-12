@@ -1,6 +1,13 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: db.js
+ * Descripción: Configuración de la conexión a MongoDB usando Mongoose.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const mongoose = require("mongoose");
 const logger = require("../utils/logger");
 
+// Función para conectar a MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);

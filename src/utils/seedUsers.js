@@ -1,5 +1,9 @@
-// Script para poblar la colección User con datos iniciales
-// Ejecuta: node src/utils/seedUsers.js
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: seedUsers.js
+ * Descripción: Script para poblar la base de datos con usuarios de ejemplo.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -37,6 +41,7 @@ const users = [
   },
 ];
 
+// Script para poblar la base de datos con usuarios de ejemplo, incluyendo un usuario administrador para facilitar las pruebas y la gestión de la plataforma, con manejo de errores para asegurar que el proceso se completa correctamente
 async function seed() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);

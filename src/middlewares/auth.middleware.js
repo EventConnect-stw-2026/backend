@@ -1,5 +1,13 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: auth.middleware.js
+ * Descripción: Middleware para verificar la autenticación de usuarios mediante JWT.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const jwt = require('jsonwebtoken');
 
+// Middleware para verificar la autenticación del usuario mediante JWT
 function requireAuth(req, res, next) {
   try {
     const token = req.cookies.accessToken;

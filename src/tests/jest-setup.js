@@ -1,8 +1,15 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: jest-setup.js
+ * Descripción: Script para configurar el entorno de pruebas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 
 let mongoServer;
 
+// Este script se ejecutará antes de que se inicien las pruebas, y se encargará de iniciar un servidor de MongoDB en memoria para proporcionar una base de datos aislada y rápida para las pruebas, además de configurar las variables de entorno necesarias para la aplicación durante las pruebas
 module.exports = async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();

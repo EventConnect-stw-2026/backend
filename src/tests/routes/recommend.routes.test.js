@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: recommend.routes.test.js
+ * Descripción: Pruebas para las rutas de recomendación de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const express = require('express');
 const request = require('supertest');
 const Event = require('../../models/Event');

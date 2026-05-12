@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: auth.routes.js
+ * Descripción: Rutas para la autenticación de usuarios.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const express = require("express");
 const router = express.Router();
 

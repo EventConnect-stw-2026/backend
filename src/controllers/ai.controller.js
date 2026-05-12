@@ -1,7 +1,14 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: ai.controller.js
+ * Descripción: Controlador para funciones de inteligencia artificial.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Event = require("../models/Event");
 const generateSummary = require("../services/aiSummary.service");
 const logger = require("../utils/logger");
 
+// Función para generar resumen de eventos usando IA
 async function getSummary(req, res) {
   try {
     const { category, date } = req.body;

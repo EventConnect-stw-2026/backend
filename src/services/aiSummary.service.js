@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: aiSummary.service.js
+ * Descripción: Servicio para generar resúmenes inteligentes de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const logger = require("../utils/logger");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

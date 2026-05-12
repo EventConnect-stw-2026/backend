@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: meetup.validators.js
+ * Descripción: Validadores para las rutas de gestión de quedadas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const { body, param } = require('express-validator');
 
 const createMeetupValidator = [

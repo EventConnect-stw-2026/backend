@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: syncEvents.job.test.js
+ * Descripción: Pruebas para el job de sincronización de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const cron = require('node-cron');
 const importEvents = require('../../services/importEvents.service');
 const updateExpiredEvents = require('../../services/eventStatus.service');

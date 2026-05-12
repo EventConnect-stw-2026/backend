@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: meetup.controller.test.js
+ * Descripción: Pruebas para el controlador de meetups.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const mongoose = require('mongoose');
 const Meetup = require('../../models/Meetup');
 const Event = require('../../models/Event');

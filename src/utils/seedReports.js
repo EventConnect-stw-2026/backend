@@ -1,5 +1,9 @@
-// Script para poblar la colección Report con datos iniciales
-// Ejecuta: node src/utils/seedReports.js
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: seedReports.js
+ * Descripción: Script para poblar la base de datos con reportes de ejemplo, incluyendo diferentes tipos y razones de reporte.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 
 const mongoose = require('mongoose');
 const Report = require('../models/Report');
@@ -7,6 +11,7 @@ const User = require('../models/User');
 const Event = require('../models/Event');
 require('dotenv').config();
 
+// Array de reportes de ejemplo, con diferentes combinaciones de tipo, razón y categoría para cubrir casos comunes en la plataforma
 async function seed() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);

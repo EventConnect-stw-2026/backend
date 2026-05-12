@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: auth.test.js
+ * Descripción: Pruebas para el controlador de autenticación.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 
 require('dotenv').config();
 const request = require('supertest');

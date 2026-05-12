@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: meetup.routes.js
+ * Descripción: Rutas para la gestión de quedadas.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');

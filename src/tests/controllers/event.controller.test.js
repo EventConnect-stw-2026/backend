@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: event.controller.test.js
+ * Descripción: Pruebas para el controlador de eventos.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const Event = require('../../models/Event');
 const User = require('../../models/User');
 

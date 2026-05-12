@@ -1,3 +1,10 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: zaragoza.routes.js
+ * Descripción: Rutas para la gestión de eventos de Zaragoza.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
+
 const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/zaragoza.controller");

@@ -1,5 +1,8 @@
 #!/bin/sh
-# Entrypoint para ejecutar el seed solo si no hay usuarios y luego arrancar el backend
+# Aplicación: EventConnect - Plataforma de gestión de eventos
+# Archivo: entrypoint.sh
+# Descripción: Script de arranque del contenedor; espera MongoDB, ejecuta seeds y arranca el backend.
+# Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
 
 set -e
 

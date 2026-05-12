@@ -1,3 +1,9 @@
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: app.js
+ * Descripción: Configuración principal de la aplicación Express, incluyendo middlewares, rutas y documentación Swagger.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");

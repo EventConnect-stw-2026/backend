@@ -1,10 +1,15 @@
-// Script para poblar la colección Settings con datos iniciales
-// Ejecuta: node src/utils/seedSettings.js
+/**
+ * Aplicación: EventConnect - Plataforma de gestión de eventos
+ * Archivo: seedSettings.js
+ * Descripción: Script para poblar la base de datos con configuraciones de ejemplo.
+ * Autor: Pablo Báscones, Mario Caudevilla, Mario Hernández y David Borrel
+ */
 
 const mongoose = require('mongoose');
 const Settings = require('../models/Settings');
 require('dotenv').config();
 
+// Configuración de ejemplo para la aplicación, incluyendo información de contacto, opciones de moderación y programación de tareas de mantenimiento y backup
 async function seed() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
